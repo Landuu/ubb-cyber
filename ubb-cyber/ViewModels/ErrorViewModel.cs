@@ -1,4 +1,4 @@
-namespace ubb_cyber.Models
+namespace ubb_cyber.ViewModels
 {
     public class ErrorViewModel
     {

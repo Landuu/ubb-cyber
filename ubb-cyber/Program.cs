@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
+using ubb_cyber.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,9 +13,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
         options.SlidingExpiration = true;
         options.AccessDeniedPath = "/Forbidden/";
+        options.LoginPath = "/Auth/Login";
     });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<AppDbContext>();
 
 var app = builder.Build();
 

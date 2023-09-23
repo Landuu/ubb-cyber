@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Logowanie";
+}
+
+<div class="d-flex justify-content-center my-5">
+    <div class="w-50 p-4">
+        <div class="fs-4 text-center">
+            🔐 Logowanie
+        </div>
+        <div>
+            <form asp-controller="Auth" asp-action="Login">
+                <div class="mb-3">
+                    <label for="inputLogin" class="form-label">Login</label>
+                    <input name="login" type="text" class="form-control" id="inputLogin">
+                </div>
+                <div class="mb-3">
+                    <label for="inputPassword" class="form-label">Hasło</label>
+                    <input name="password" type="password" class="form-control" id="inputPassword">
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary px-3">Zaloguj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

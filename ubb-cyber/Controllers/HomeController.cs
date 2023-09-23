@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using ubb_cyber.Models;
+using ubb_cyber.ViewModels;
 
 namespace ubb_cyber.Controllers
 {
@@ -18,6 +20,7 @@ namespace ubb_cyber.Controllers
             return View();
         }
 
+        [Authorize]
         public IActionResult Privacy()
         {
             return View();
