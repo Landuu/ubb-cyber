@@ -13,6 +13,9 @@ namespace ubb_cyber.Models
         [MaxLength(256)]
         public required string PasswordHash { get; set; }
 
+        [MaxLength(256)]
+        public string? ResetPasswordKey { get; set; }
+
         public DateTime? LastLogin { get; set; }
     }
 }

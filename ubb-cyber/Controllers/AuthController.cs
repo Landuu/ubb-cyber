@@ -7,26 +7,67 @@ using ubb_cyber.Models;
 using System.Runtime.CompilerServices;
 using ubb_cyber.Database;
 using Microsoft.EntityFrameworkCore;
+using ubb_cyber.Validators;
+using FluentValidation;
+using System;
+using FluentValidation.AspNetCore;
+using PasswordGenerator;
 
 namespace ubb_cyber.Controllers
 {
     public class AuthController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IValidator<LoginViewModel> _loginValidator;
+        private readonly IValidator<ResetPasswordViewModel> _resetValidator;
 
-        public AuthController(AppDbContext context)
+        public AuthController(AppDbContext context, IValidator<LoginViewModel> loginValidator, IValidator<ResetPasswordViewModel> resetValidator)
         {
             _context = context;
+            _loginValidator = loginValidator;
+            _resetValidator = resetValidator;
         }
 
         public IActionResult Login()
         {
-            if(User.Identity != null && User.Identity.IsAuthenticated)
-            {
+            if(IsLoggedIn()) 
                 return RedirectToIndex();
-            }
 
             return View();
+        }
+
+        public async Task<IActionResult> ResetPassword([FromQuery] string? key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return RedirectToIndex();
+
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.ResetPasswordKey == key);
+            if (user == null)
+                return RedirectToIndex();
+
+            var viewModel = new ResetPasswordViewModel()
+            {
+                 Key = key
+            };
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword([FromForm] ResetPasswordViewModel viewModel)
+        {
+            var result = await _resetValidator.ValidateAsync(viewModel);
+
+            if (!result.IsValid)
+            {
+                result.AddToModelState(ModelState);
+                return View(viewModel);
+            }
+
+            var user = await _context.Users.SingleAsync(x => x.ResetPasswordKey == viewModel.Key);
+            user.PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(viewModel.Password);
+            user.ResetPasswordKey = null;
+            await _context.SaveChangesAsync();
+            return RedirectToIndex();
         }
 
         [HttpGet]
@@ -36,21 +77,26 @@ namespace ubb_cyber.Controllers
             return RedirectToIndex();
         }
 
+        public IActionResult Profile()
+        {
+            if (!IsLoggedIn())
+                return RedirectToIndex();
+
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Login([FromForm] LoginViewModel viewModel)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Login == viewModel.Login);
-            if(user == null)
+            var result = await _loginValidator.ValidateAsync(viewModel);
+            
+            if(!result.IsValid)
             {
-                return View();
+                result.AddToModelState(ModelState);
+                return View(viewModel);
             }
 
-            bool passwordValid = ValidatePassword(user.PasswordHash, viewModel.Password);
-            if (!passwordValid)
-            {
-                return View();
-            }
-
+            var user = await _context.Users.SingleAsync(x => x.Login ==  viewModel.Login);
             string role = user.Login.ToLower() == "admin" ? "admin" : "user";
             var claims = new List<Claim>()
             {
@@ -64,16 +110,14 @@ namespace ubb_cyber.Controllers
         }
 
         [HttpGet]
-        public IActionResult Check()
-        {
-            var name = User.Identity?.Name ?? "Not logged-in";
-            return Ok(name);
-        }
-
-
-        [HttpGet]
         public async Task<IActionResult> Seed()
         {
+            var resetKeyGenerator = new Password()
+                .IncludeLowercase()
+                .IncludeUppercase()
+                .IncludeNumeric()
+                .LengthRequired(128);
+
             var users = new List<User>
             {
                 new User()
@@ -85,7 +129,8 @@ namespace ubb_cyber.Controllers
                 new User()
                 {
                     Login = "user",
-                    PasswordHash = GetPasswordHash("user")
+                    PasswordHash = GetPasswordHash("user"),
+                    ResetPasswordKey = resetKeyGenerator.Next()
                 }
             };
 
@@ -105,9 +150,9 @@ namespace ubb_cyber.Controllers
             return BCrypt.Net.BCrypt.EnhancedHashPassword(password);
         }
 
-        private static bool ValidatePassword(string hash, string password)
+        private bool IsLoggedIn()
         {
-            return BCrypt.Net.BCrypt.EnhancedVerify(password, hash);
+            return User.Identity != null && User.Identity.IsAuthenticated;
         }
     }
 }

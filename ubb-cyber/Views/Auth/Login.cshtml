@@ -1,4 +1,5 @@
-﻿@{
+﻿@model ubb_cyber.ViewModels.LoginViewModel;
+@{
     ViewData["Title"] = "Logowanie";
 }
 
@@ -11,11 +12,13 @@
             <form asp-controller="Auth" asp-action="Login">
                 <div class="mb-3">
                     <label for="inputLogin" class="form-label">Login</label>
-                    <input name="login" type="text" class="form-control" id="inputLogin">
+                    <input asp-for="Login" type="text" class="form-control" id="inputLogin">
+                    <span class="text-danger" asp-validation-for="Login"></span>
                 </div>
                 <div class="mb-3">
                     <label for="inputPassword" class="form-label">Hasło</label>
-                    <input name="password" type="password" class="form-control" id="inputPassword">
+                    <input asp-for="Password" type="password" class="form-control" id="inputPassword">
+                    <span class="text-danger" asp-validation-for="Password"></span>
                 </div>
                 <div class="d-flex justify-content-center">
                     <button type="submit" class="btn btn-primary px-3">Zaloguj</button>

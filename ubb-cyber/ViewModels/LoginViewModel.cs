@@ -1,9 +1,12 @@
-﻿namespace ubb_cyber.ViewModels
+﻿using System.ComponentModel;
+
+namespace ubb_cyber.ViewModels
 {
     public class LoginViewModel
     {
-        public required string Login { get; set; }
+        public string? Login { get; set; }
 
-        public required string Password { get; set; }
+        [DisplayName("Hasło")]
+        public string? Password { get; set; }
     }
 }
