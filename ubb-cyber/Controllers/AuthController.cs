@@ -12,36 +12,72 @@ using FluentValidation;
 using System;
 using FluentValidation.AspNetCore;
 using PasswordGenerator;
+using ubb_cyber.Services.UserService;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ubb_cyber.Controllers
 {
+    [Authorize]
     public class AuthController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IUserService _userService;
         private readonly IValidator<LoginViewModel> _loginValidator;
         private readonly IValidator<ResetPasswordViewModel> _resetValidator;
+        private readonly IValidator<ChangePasswordViewModel> _changeValidator;
 
-        public AuthController(AppDbContext context, IValidator<LoginViewModel> loginValidator, IValidator<ResetPasswordViewModel> resetValidator)
+        public AuthController(AppDbContext context, IUserService userService, IValidator<LoginViewModel> loginValidator, IValidator<ResetPasswordViewModel> resetValidator, IValidator<ChangePasswordViewModel> changeValidator)
         {
             _context = context;
+            _userService = userService;
             _loginValidator = loginValidator;
             _resetValidator = resetValidator;
+            _changeValidator = changeValidator;
         }
 
+        [AllowAnonymous]
         public IActionResult Login()
         {
-            if(IsLoggedIn()) 
+            if(_userService.IsLoggedIn()) 
                 return RedirectToIndex();
 
             return View();
         }
 
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> Login([FromForm] LoginViewModel viewModel)
+        {
+            var result = await _loginValidator.ValidateAsync(viewModel);
+
+            if (!result.IsValid)
+            {
+                result.AddToModelState(ModelState);
+                return View(viewModel);
+            }
+
+            var user = await _userService.GetUserByLoginSingle(viewModel.Login!);
+            string role = user.Login.ToLower() == "admin" ? "admin" : "user";
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Sid, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Login),
+                new Claim(ClaimTypes.Role, role)
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            return RedirectToIndex();
+        }
+
+        [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromQuery] string? key)
         {
             if (string.IsNullOrWhiteSpace(key))
                 return RedirectToIndex();
 
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.ResetPasswordKey == key);
+            var user = await _userService.GetUserByKey(key);
             if (user == null)
                 return RedirectToIndex();
 
@@ -52,6 +88,7 @@ namespace ubb_cyber.Controllers
             return View(viewModel);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> ResetPassword([FromForm] ResetPasswordViewModel viewModel)
         {
@@ -63,13 +100,14 @@ namespace ubb_cyber.Controllers
                 return View(viewModel);
             }
 
-            var user = await _context.Users.SingleAsync(x => x.ResetPasswordKey == viewModel.Key);
-            user.PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(viewModel.Password);
+            var user = await _userService.GetUserByKeySingle(viewModel.Key!);
+            user.PasswordHash = _userService.GeneratePasswordHash(viewModel.Password!);
             user.ResetPasswordKey = null;
             await _context.SaveChangesAsync();
             return RedirectToIndex();
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
@@ -79,36 +117,34 @@ namespace ubb_cyber.Controllers
 
         public IActionResult Profile()
         {
-            if (!IsLoggedIn())
-                return RedirectToIndex();
+            return View();
+        }
 
+        public IActionResult ChangePassword()
+        {
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login([FromForm] LoginViewModel viewModel)
+        public async Task<IActionResult> ChangePassword([FromForm] ChangePasswordViewModel viewModel)
         {
-            var result = await _loginValidator.ValidateAsync(viewModel);
-            
-            if(!result.IsValid)
+            var result = await _changeValidator.ValidateAsync(viewModel);
+
+            if (!result.IsValid)
             {
                 result.AddToModelState(ModelState);
                 return View(viewModel);
             }
 
-            var user = await _context.Users.SingleAsync(x => x.Login ==  viewModel.Login);
-            string role = user.Login.ToLower() == "admin" ? "admin" : "user";
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, user.Login),
-                new Claim(ClaimTypes.Role, role)
-            };
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-            return RedirectToIndex();
+            var user = await _userService.GetUserFromRequest();
+            if (user == null) return RedirectToIndex();
+
+            user.PasswordHash = _userService.GeneratePasswordHash(viewModel.Password!);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Profile));
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Seed()
         {
@@ -123,13 +159,13 @@ namespace ubb_cyber.Controllers
                 new User()
                 {
                     Login = "admin",
-                    PasswordHash = GetPasswordHash("admin")
+                    PasswordHash = _userService.GeneratePasswordHash("admin")
                 },
 
                 new User()
                 {
                     Login = "user",
-                    PasswordHash = GetPasswordHash("user"),
+                    PasswordHash = _userService.GeneratePasswordHash("user"),
                     ResetPasswordKey = resetKeyGenerator.Next()
                 }
             };
@@ -143,16 +179,6 @@ namespace ubb_cyber.Controllers
         private IActionResult RedirectToIndex()
         {
             return RedirectToAction("Index", "Home");
-        }
-
-        private static string GetPasswordHash(string password)
-        {
-            return BCrypt.Net.BCrypt.EnhancedHashPassword(password);
-        }
-
-        private bool IsLoggedIn()
-        {
-            return User.Identity != null && User.Identity.IsAuthenticated;
         }
     }
 }

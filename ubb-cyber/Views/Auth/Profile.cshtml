@@ -6,5 +6,9 @@
     <p class="fs-5">
         Zalogowano jako: <b>@User.Identity?.Name</b>
     </p>
-
+    <div>
+        <a class="btn btn-primary" asp-controller="Auth" asp-action="ChangePassword">
+            Zmiana hasła
+        </a>
+    </div>
 </div>

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
 using ubb_cyber.Database;
+using ubb_cyber.Services.PrincipalProvider;
+using ubb_cyber.Services.UserService;
 using ubb_cyber.Validators;
 using ubb_cyber.ViewModels;
 
@@ -21,10 +23,13 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddScoped<IPrincipalProvider, PrincipalProvider>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Validators
 builder.Services.AddScoped<IValidator<LoginViewModel>, LoginViewModelValidator>();
 builder.Services.AddScoped<IValidator<ResetPasswordViewModel>, ResetPasswordViewModelValidator>();
+builder.Services.AddScoped<IValidator<ChangePasswordViewModel>, ChangePasswordViewModelValidator>();
 
 var app = builder.Build();
 
