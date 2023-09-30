@@ -26,7 +26,13 @@ namespace ubb_cyber.Validators
                 {
                     return await ValidateUser(login, model.Password, cancellationToken);
                 })
-                    .WithMessage(_errorMessage);
+                    .WithMessage(_errorMessage)
+                .MustAsync(async (model, login, cancellationToken) =>
+                 {
+                     return !await _userService.IsUserLocked(login, cancellationToken);
+                 })
+                    .WithMessage("Podane konto jest zablokowane");
+
 
             RuleFor(model => model.Password)
                 .NotNull()

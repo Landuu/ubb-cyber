@@ -9,5 +9,7 @@ namespace ubb_cyber.ViewModels
         public required string Login { get; set; }
 
         public DateTime? LastLogin { get; set; }
+
+        public bool Locked { get; set; }
     }
 }

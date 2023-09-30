@@ -17,5 +17,7 @@ namespace ubb_cyber.Models
         public string? ResetPasswordKey { get; set; }
 
         public DateTime? LastLogin { get; set; }
+
+        public bool Locked { get; set; }
     }
 }

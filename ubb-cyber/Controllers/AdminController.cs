@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ubb_cyber.Database;
+using ubb_cyber.Models;
+using ubb_cyber.Services.UserService;
 using ubb_cyber.ViewModels;
 
 namespace ubb_cyber.Controllers
@@ -12,11 +16,15 @@ namespace ubb_cyber.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IUserService _userService;
+        private readonly IValidator<PanelAddUserViewModel> _addUserValidator;
 
-        public AdminController(AppDbContext context, IMapper mapper)
+        public AdminController(AppDbContext context, IMapper mapper, IUserService userService, IValidator<PanelAddUserViewModel> addUserValidator)
         {
             _context = context;
             _mapper = mapper;
+            _userService = userService;
+            _addUserValidator = addUserValidator;
         }
 
         public IActionResult Index()
@@ -46,6 +54,29 @@ namespace ubb_cyber.Controllers
         public IActionResult AddUser()
         {
             return View();
+        }
+
+        [HttpPost("[controller]/Users/Add")]
+        public async Task<IActionResult> AddUser([FromForm] PanelAddUserViewModel viewModel)
+        {
+            var result = await _addUserValidator.ValidateAsync(viewModel);
+
+            if (!result.IsValid)
+            {
+                result.AddToModelState(ModelState);
+                return View(viewModel);
+            }
+
+            var user = new User()
+            {
+                Login = viewModel.Login,
+                PasswordHash = _userService.GeneratePasswordHash(viewModel.Password),
+                ResetPasswordKey = _userService.GenerateResetPasswordKey()
+            };
+
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+            return RedirectToUsers();
         }
 
         public IActionResult RedirectToUsers()

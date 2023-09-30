@@ -21,6 +21,7 @@
                     <th scope="col">Id</th>
                     <th scope="col">Login</th>
                     <th scope="col">Ostatnie logowanie</th>
+                    <th scope="col">Konto zablokowane</th>
                     <td scope="col">Akcja</td>
                 </tr>
             </thead>
@@ -31,6 +32,9 @@
                         <td>@user.Id</td>
                         <td>@user.Login</td>
                         <td>@(user.LastLogin != null ? user.LastLogin : "-")</td>
+                        <td>
+                            @(user.Locked ? "TAK" : "NIE")
+                        </td>
                         <td>
                             <a asp-controller="Admin" asp-action="EditUser" asp-route-userId="@user.Id">Edytuj</a>
                         </td>

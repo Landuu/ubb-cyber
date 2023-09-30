@@ -65,9 +65,11 @@ namespace ubb_cyber.Controllers
                 new Claim(ClaimTypes.Role, role)
             };
 
+            user.LastLogin = DateTime.Now;
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            await _context.SaveChangesAsync();
             return RedirectToIndex();
         }
 
@@ -166,7 +168,7 @@ namespace ubb_cyber.Controllers
                 {
                     Login = "user",
                     PasswordHash = _userService.GeneratePasswordHash("user"),
-                    ResetPasswordKey = resetKeyGenerator.Next()
+                    ResetPasswordKey = _userService.GenerateResetPasswordKey()
                 }
             };
 

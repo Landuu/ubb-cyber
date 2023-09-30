@@ -1,5 +1,5 @@
 ﻿@using ubb_cyber.ViewModels;
-@model PanelEditUserViewModel;
+@model PanelAddUserViewModel;
 
 @{
     ViewData["Title"] = "Dodaj użytkownika - Panel administracyjny";
@@ -12,7 +12,7 @@
     <div class="d-flex justify-content-center">
     <div class="w-50 p-4">
         <div>
-            <form asp-controller="Auth" asp-action="AddUser">
+            <form asp-controller="Admin" asp-action="AddUser">
                 <div class="mb-3">
                     <label for="inputLogin" class="form-label">Login:</label>
                     <input asp-for="Login" type="text" class="form-control" id="inputLogin">
@@ -20,15 +20,15 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="inputPassword" class="form-label">Nowe hasło (opcjonalne):</label>
-                    <input asp-for="NewPassword" type="password" class="form-control" id="inputPassword">
-                    <span class="text-danger" asp-validation-for="NewPassword"></span>
+                    <label for="inputPassword" class="form-label">Hasło:</label>
+                    <input asp-for="Password" type="password" class="form-control" id="inputPassword">
+                    <span class="text-danger" asp-validation-for="Password"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label for="inputPasswordConfirm" class="form-label">Powtórz nowe hasło:</label>
-                    <input asp-for="NewPasswordConfirm" type="password" class="form-control" id="inputPasswordConfirm">
-                    <span class="text-danger" asp-validation-for="NewPasswordConfirm"></span>
+                    <label for="inputPasswordConfirm" class="form-label">Powtórz hasło:</label>
+                    <input asp-for="PasswordConfirm" type="password" class="form-control" id="inputPasswordConfirm">
+                    <span class="text-danger" asp-validation-for="PasswordConfirm"></span>
                 </div>
 
                 <div class="d-flex justify-content-center">
