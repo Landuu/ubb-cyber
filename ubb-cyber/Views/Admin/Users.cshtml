@@ -1,0 +1,42 @@
+﻿@using ubb_cyber.ViewModels;
+@model List<PanelUserViewModel>;
+
+@{
+    ViewData["Title"] = "Użytkownicy - Panel administracyjny";
+}
+
+<div>
+    <div class="d-flex justify-content-between">
+        <p class="fs-5">
+             Panel administracyjny / Lista użytkowników aplikacji
+        </p>
+        <div>
+            <a asp-controller="Admin" asp-action="AddUser" class="btn btn-primary">+ Dodaj użytkownika</a>
+        </div>
+    </div>
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Login</th>
+                    <th scope="col">Ostatnie logowanie</th>
+                    <td scope="col">Akcja</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.Id</td>
+                        <td>@user.Login</td>
+                        <td>@(user.LastLogin != null ? user.LastLogin : "-")</td>
+                        <td>
+                            <a asp-controller="Admin" asp-action="EditUser" asp-route-userId="@user.Id">Edytuj</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

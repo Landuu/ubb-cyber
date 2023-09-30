@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Panel administracyjny";
+}
+
+<div>
+    <p class="fs-5">
+        Panel administracyjny, zalogowano jako: <b>@User.Identity?.Name</b>
+    </p>
+    <div>
+        <a class="btn btn-primary" asp-controller="Admin" asp-action="Users">
+            Lista użytkowników
+        </a>
+    </div>
+</div>

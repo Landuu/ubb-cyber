@@ -23,6 +23,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddAutoMapper(typeof(Program));
+
 builder.Services.AddScoped<IPrincipalProvider, PrincipalProvider>();
 builder.Services.AddScoped<IUserService, UserService>();
 

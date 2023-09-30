@@ -1,0 +1,42 @@
+﻿@using ubb_cyber.ViewModels;
+@model PanelEditUserViewModel;
+
+@{
+    ViewData["Title"] = "Dodaj użytkownika - Panel administracyjny";
+}
+
+<div>
+    <p class="fs-5">
+         Panel administracyjny / Lista użytkowników aplikacji / Nowy użytkownik
+    </p>
+    <div class="d-flex justify-content-center">
+    <div class="w-50 p-4">
+        <div>
+            <form asp-controller="Auth" asp-action="AddUser">
+                <div class="mb-3">
+                    <label for="inputLogin" class="form-label">Login:</label>
+                    <input asp-for="Login" type="text" class="form-control" id="inputLogin">
+                    <span class="text-danger" asp-validation-for="Login"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="inputPassword" class="form-label">Nowe hasło (opcjonalne):</label>
+                    <input asp-for="NewPassword" type="password" class="form-control" id="inputPassword">
+                    <span class="text-danger" asp-validation-for="NewPassword"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="inputPasswordConfirm" class="form-label">Powtórz nowe hasło:</label>
+                    <input asp-for="NewPasswordConfirm" type="password" class="form-control" id="inputPasswordConfirm">
+                    <span class="text-danger" asp-validation-for="NewPasswordConfirm"></span>
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <a asp-controller="Admin" asp-action="Users" class="btn btn-primary px-3 me-3">Anuluj</a>
+                    <button type="submit" class="btn btn-primary px-3">Dodaj użytkownika</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+</div>

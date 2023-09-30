@@ -1,5 +1,7 @@
-﻿@{
+﻿@using System.Security.Claims;
+@{
     bool isLoggedIn = User.Identity != null && User.Identity.IsAuthenticated;
+    bool isAdmin = User.FindFirst(ClaimTypes.Role)?.Value == "admin";
     string login = User.Identity?.Name ?? "";
 }
 
@@ -29,6 +31,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">🤖 Panel administracyjny</a>
+                            </li>
+                        }
                     </ul>
                     <div>
                         <ul class="navbar-nav flex-grow-1">
