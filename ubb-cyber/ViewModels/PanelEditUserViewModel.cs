@@ -9,5 +9,7 @@
         public string? NewPassword { get; set; }
 
         public string? NewPasswordConfirm { get; set; }
+
+        public bool Locked { get; set; }
     }
 }

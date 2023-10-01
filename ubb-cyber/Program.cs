@@ -1,10 +1,10 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
 using ubb_cyber.Database;
 using ubb_cyber.Services.PrincipalProvider;
 using ubb_cyber.Services.UserService;
+using ubb_cyber.Services.ValidatorUserProvider;
 using ubb_cyber.Validators;
 using ubb_cyber.ViewModels;
 
@@ -29,10 +29,12 @@ builder.Services.AddScoped<IPrincipalProvider, PrincipalProvider>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 // Validators
+builder.Services.AddScoped<IValidatorUserProvider, ValidatorUserProvider>();
 builder.Services.AddScoped<IValidator<LoginViewModel>, LoginViewModelValidator>();
 builder.Services.AddScoped<IValidator<ResetPasswordViewModel>, ResetPasswordViewModelValidator>();
 builder.Services.AddScoped<IValidator<ChangePasswordViewModel>, ChangePasswordViewModelValidator>();
 builder.Services.AddScoped<IValidator<PanelAddUserViewModel>, PanelAddUserViewModelValidator>();
+builder.Services.AddScoped<IValidator<PanelEditUserViewModel>, PanelEditUserViewModelValidator>();
 
 var app = builder.Build();
 

@@ -9,7 +9,7 @@ namespace ubb_cyber.Utils
             if (principal == null || principal.Identity == null || !principal.Identity.IsAuthenticated) return false;
             var roles = principal.FindAll(x => x.Type == ClaimTypes.Role);
             if (!roles.Any()) return false;
-            return roles.Any(x => x.Value == "admin");       
+            return roles.Any(x => x.Value == "admin");
         }
 
         public static int? GetUserId(this ClaimsPrincipal principal)

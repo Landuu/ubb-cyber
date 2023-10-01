@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 using ubb_cyber.Database;
 using ubb_cyber.Services.UserService;
+using ubb_cyber.Services.ValidatorUserProvider;
 using ubb_cyber.ViewModels;
 
 namespace ubb_cyber.Validators
@@ -9,12 +9,14 @@ namespace ubb_cyber.Validators
     public class ResetPasswordViewModelValidator : AbstractValidator<ResetPasswordViewModel>
     {
         private readonly AppDbContext _context;
+        private readonly IValidatorUserProvider _userProvider;
         private readonly IUserService _userService;
 
-        public ResetPasswordViewModelValidator(AppDbContext context, IUserService userService)
+        public ResetPasswordViewModelValidator(AppDbContext context, IUserService userService, IValidatorUserProvider userProvider)
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
             _context = context;
+            _userProvider = userProvider;
             _userService = userService;
 
             RuleFor(model => model.Key)
@@ -25,9 +27,10 @@ namespace ubb_cyber.Validators
                     .WithName("Obecne hasło")
                 .MustAsync(async (model, password, cancellationToken) =>
                 {
-                    return await ValidateUser(model.Key, password, cancellationToken);
-                })
-                    .WithMessage("Obecne hasło jest niepoprawne");
+                    var user = await _userProvider.GetUserByResetKey(model.Key, cancellationToken);
+                    if (user == null || password == null) return false;
+                    return _userService.ValidatePasswordHash(password, user.PasswordHash);
+                }).WithMessage("Obecne hasło jest niepoprawne");
 
             RuleFor(model => model.Password)
                 .NotEmpty()
@@ -43,14 +46,6 @@ namespace ubb_cyber.Validators
                 .Must((model, confirm) => model.Password == confirm)
                     .WithMessage("Hasła muszą być takie same");
 
-        }
-
-        private async Task<bool> ValidateUser(string? key, string? password, CancellationToken cancellationToken)
-        {
-            if (key == null || password == null) return false;
-            var user = await _userService.GetUserByKey(key, cancellationToken);
-            if (user == null) return false;
-            return _userService.ValidatePasswordHash(password, user.PasswordHash);
         }
     }
 }

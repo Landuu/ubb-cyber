@@ -8,6 +8,7 @@ namespace ubb_cyber.Services.UserService
         string GenerateResetPasswordKey();
         Task<User?> GetUserById(int id);
         Task<User?> GetUserById(int id, CancellationToken cancellationToken);
+        Task<User> GetUserByIdSingle(int id);
         Task<User?> GetUserByKey(string key);
         Task<User?> GetUserByKey(string key, CancellationToken cancellationToken);
         Task<User> GetUserByKeySingle(string key);

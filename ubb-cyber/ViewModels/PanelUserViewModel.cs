@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace ubb_cyber.ViewModels
+﻿namespace ubb_cyber.ViewModels
 {
     public class PanelUserViewModel
     {

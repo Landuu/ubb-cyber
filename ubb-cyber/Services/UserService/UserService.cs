@@ -78,6 +78,11 @@ namespace ubb_cyber.Services.UserService
             return await _context.Users.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
+        public async Task<User> GetUserByIdSingle(int id)
+        {
+            return await _context.Users.SingleAsync(x => x.Id == id);
+        }
+
         public async Task<User?> GetUserByLogin(string login)
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.Login == login);

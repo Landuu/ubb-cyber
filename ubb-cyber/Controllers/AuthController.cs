@@ -1,19 +1,16 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using ubb_cyber.ViewModels;
-using ubb_cyber.Models;
-using System.Runtime.CompilerServices;
-using ubb_cyber.Database;
-using Microsoft.EntityFrameworkCore;
-using ubb_cyber.Validators;
-using FluentValidation;
-using System;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
-using PasswordGenerator;
-using ubb_cyber.Services.UserService;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PasswordGenerator;
+using System.Security.Claims;
+using ubb_cyber.Database;
+using ubb_cyber.Models;
+using ubb_cyber.Services.UserService;
+using ubb_cyber.ViewModels;
 
 namespace ubb_cyber.Controllers
 {
@@ -36,9 +33,15 @@ namespace ubb_cyber.Controllers
         }
 
         [AllowAnonymous]
+        public IActionResult Index()
+        {
+            return RedirectToIndex();
+        }
+
+        [AllowAnonymous]
         public IActionResult Login()
         {
-            if(_userService.IsLoggedIn()) 
+            if (_userService.IsLoggedIn())
                 return RedirectToIndex();
 
             return View();
@@ -85,7 +88,7 @@ namespace ubb_cyber.Controllers
 
             var viewModel = new ResetPasswordViewModel()
             {
-                 Key = key
+                Key = key
             };
             return View(viewModel);
         }

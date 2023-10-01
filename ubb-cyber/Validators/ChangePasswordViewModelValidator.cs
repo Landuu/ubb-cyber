@@ -1,30 +1,32 @@
 ﻿using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 using ubb_cyber.Database;
+using ubb_cyber.Models;
 using ubb_cyber.Services.UserService;
+using ubb_cyber.Services.ValidatorUserProvider;
 using ubb_cyber.ViewModels;
 
 namespace ubb_cyber.Validators
 {
     public class ChangePasswordViewModelValidator : AbstractValidator<ChangePasswordViewModel>
     {
-        private readonly AppDbContext _context;
         private readonly IUserService _userService;
+        private readonly IValidatorUserProvider _userProvider;
 
-        public ChangePasswordViewModelValidator(AppDbContext context, IUserService userService)
+        public ChangePasswordViewModelValidator(IUserService userService, IValidatorUserProvider userProvider)
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
-            _context = context;
             _userService = userService;
+            _userProvider = userProvider;
 
             RuleFor(model => model.CurrentPassword)
                 .NotEmpty()
                     .WithName("Obecne hasło")
                 .MustAsync(async (model, password, cancellationToken) =>
                 {
-                    return await ValidateUser(password, cancellationToken);
-                })
-                    .WithMessage("Obecne hasło jest niepoprawne");
+                    var user = await _userProvider.GetUserByRequest(cancellationToken);
+                    if (user == null || password == null) return false;
+                    return _userService.ValidatePasswordHash(password, user.PasswordHash);
+                }).WithMessage("Obecne hasło jest niepoprawne");
 
             RuleFor(model => model.Password)
                 .NotEmpty()
@@ -39,14 +41,6 @@ namespace ubb_cyber.Validators
                     .WithName("Potwierdź nowe hasło")
                 .Must((model, confirm) => model.Password == confirm)
                     .WithMessage("Hasła muszą być takie same");
-        }
-
-        private async Task<bool> ValidateUser(string? password, CancellationToken cancellationToken)
-        {
-            if (password == null) return false;
-            var user = await _userService.GetUserFromRequest(cancellationToken);
-            if (user == null) return false;
-            return _userService.ValidatePasswordHash(password, user.PasswordHash);
         }
     }
 }

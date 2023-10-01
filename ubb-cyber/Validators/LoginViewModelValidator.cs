@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using ubb_cyber.Database;
+using ubb_cyber.Models;
 using ubb_cyber.Services.UserService;
+using ubb_cyber.Services.ValidatorUserProvider;
 using ubb_cyber.ViewModels;
 
 namespace ubb_cyber.Validators
@@ -10,13 +10,13 @@ namespace ubb_cyber.Validators
     {
         private const string _errorMessage = "Nieprawidłowy login lub hasło";
         private readonly IUserService _userService;
-        private readonly AppDbContext _context;
+        private readonly IValidatorUserProvider _userProvider;
 
-        public LoginViewModelValidator(AppDbContext context, IUserService userService)
+        public LoginViewModelValidator(IUserService userService, IValidatorUserProvider userProvider)
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
-            _context = context;
             _userService = userService;
+            _userProvider = userProvider;
 
             RuleFor(model => model.Login)
                 .NotNull()
@@ -24,14 +24,16 @@ namespace ubb_cyber.Validators
                     .WithMessage(_errorMessage)
                 .MustAsync(async (model, login, cancellationToken) =>
                 {
-                    return await ValidateUser(login, model.Password, cancellationToken);
-                })
-                    .WithMessage(_errorMessage)
+                    var user = await _userProvider.GetUserByLogin(login, cancellationToken);
+                    if (user == null || model.Password == null) return false;
+                    return _userService.ValidatePasswordHash(model.Password, user.PasswordHash);
+                }).WithMessage(_errorMessage)
                 .MustAsync(async (model, login, cancellationToken) =>
-                 {
-                     return !await _userService.IsUserLocked(login, cancellationToken);
-                 })
-                    .WithMessage("Podane konto jest zablokowane");
+                {
+                    var user = await _userProvider.GetUserByLogin(login, cancellationToken);
+                    if (user == null) return false;
+                    return !user.Locked;
+                }).WithMessage("Podane konto jest zablokowane");
 
 
             RuleFor(model => model.Password)
@@ -41,17 +43,10 @@ namespace ubb_cyber.Validators
                     .WithMessage(_errorMessage)
                 .MustAsync(async (model, password, cancellationToken) =>
                 {
-                    return await ValidateUser(model.Login, password, cancellationToken);
-                })
-                    .WithMessage(_errorMessage);
-        }
-
-        private async Task<bool> ValidateUser(string? login, string? password, CancellationToken cancellationToken)
-        {
-            if (login == null || password == null) return false;
-            var user = await _userService.GetUserByLogin(login, cancellationToken);
-            if (user == null) return false;
-            return _userService.ValidatePasswordHash(password, user.PasswordHash);
+                    var user = await _userProvider.GetUserByLogin(model.Login, cancellationToken);
+                    if (user == null || model.Password == null) return false;
+                    return _userService.ValidatePasswordHash(model.Password, user.PasswordHash);
+                }).WithMessage(_errorMessage);
         }
     }
 }

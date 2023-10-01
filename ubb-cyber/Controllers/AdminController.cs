@@ -18,13 +18,15 @@ namespace ubb_cyber.Controllers
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly IValidator<PanelAddUserViewModel> _addUserValidator;
+        private readonly IValidator<PanelEditUserViewModel> _editUserValidator;
 
-        public AdminController(AppDbContext context, IMapper mapper, IUserService userService, IValidator<PanelAddUserViewModel> addUserValidator)
+        public AdminController(AppDbContext context, IMapper mapper, IUserService userService, IValidator<PanelAddUserViewModel> addUserValidator, IValidator<PanelEditUserViewModel> editUserValidator)
         {
             _context = context;
             _mapper = mapper;
             _userService = userService;
             _addUserValidator = addUserValidator;
+            _editUserValidator = editUserValidator;
         }
 
         public IActionResult Index()
@@ -48,6 +50,28 @@ namespace ubb_cyber.Controllers
             if (user == null) return RedirectToUsers();
             var viewModel = _mapper.Map<PanelEditUserViewModel>(user);
             return View(viewModel);
+        }
+
+        [HttpPost("[controller]/Users/Edit")]
+        public async Task<IActionResult> EditUser([FromForm] PanelEditUserViewModel viewModel)
+        {
+            var result = await _editUserValidator.ValidateAsync(viewModel);
+
+            if (!result.IsValid)
+            {
+                result.AddToModelState(ModelState);
+                return View(viewModel);
+            }
+
+            var user = await _userService.GetUserByIdSingle(viewModel.Id);
+            if(user.Login != viewModel.Login) 
+                user.Login = viewModel.Login;
+            if(!string.IsNullOrWhiteSpace(viewModel.NewPassword)) 
+                user.PasswordHash = _userService.GeneratePasswordHash(viewModel.NewPassword);
+            user.Locked = viewModel.Locked;
+
+            await _context.SaveChangesAsync();
+            return RedirectToUsers();
         }
 
         [Route("[controller]/Users/Add")]
@@ -76,6 +100,13 @@ namespace ubb_cyber.Controllers
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
+            return RedirectToUsers();
+        }
+
+        [HttpPost("[controller]/Users/Delete")]
+        public async Task<IActionResult> DeleteUser([FromQuery] int userId)
+        {
+            await _context.Users.Where(x => x.Id == userId).ExecuteDeleteAsync();
             return RedirectToUsers();
         }
 
