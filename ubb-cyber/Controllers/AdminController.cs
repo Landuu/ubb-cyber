@@ -4,9 +4,11 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Permissions;
 using ubb_cyber.Database;
 using ubb_cyber.Models;
 using ubb_cyber.Services.UserService;
+using ubb_cyber.Utils;
 using ubb_cyber.ViewModels;
 
 namespace ubb_cyber.Controllers
@@ -19,14 +21,23 @@ namespace ubb_cyber.Controllers
         private readonly IUserService _userService;
         private readonly IValidator<PanelAddUserViewModel> _addUserValidator;
         private readonly IValidator<PanelEditUserViewModel> _editUserValidator;
+        private readonly IValidator<PanelPolicyViewModel> _policyValidator;
 
-        public AdminController(AppDbContext context, IMapper mapper, IUserService userService, IValidator<PanelAddUserViewModel> addUserValidator, IValidator<PanelEditUserViewModel> editUserValidator)
+        public AdminController(
+            AppDbContext context, 
+            IMapper mapper, 
+            IUserService userService, 
+            IValidator<PanelAddUserViewModel> addUserValidator, 
+            IValidator<PanelEditUserViewModel> editUserValidator,
+            IValidator<PanelPolicyViewModel> policyValidator
+            )
         {
             _context = context;
             _mapper = mapper;
             _userService = userService;
             _addUserValidator = addUserValidator;
             _editUserValidator = editUserValidator;
+            _policyValidator = policyValidator;
         }
 
         public IActionResult Index()
@@ -110,9 +121,39 @@ namespace ubb_cyber.Controllers
             return RedirectToUsers();
         }
 
+        public async Task<IActionResult> Policy()
+        {
+            var policy = await _userService.GetPasswordPolicy();
+            if (policy == null) return RedirectToIndex();
+            var viewModel = _mapper.Map<PanelPolicyViewModel>(policy);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Policy([FromForm] PanelPolicyViewModel viewModel)
+        {
+            var result = await _policyValidator.ValidateAsync(viewModel);
+
+            if (!result.IsValid)
+            {
+                result.AddToModelState(ModelState);
+                return View(viewModel);
+            }
+
+            var policy = await _userService.GetPasswordPolicy();
+            _mapper.Map(viewModel, policy);
+            await _context.SaveChangesAsync();
+            return RedirectToIndex();
+        }
+
         public IActionResult RedirectToUsers()
         {
             return RedirectToAction("Users");
+        }
+
+        public IActionResult RedirectToIndex()
+        {
+            return RedirectToAction("Index");
         }
     }
 }

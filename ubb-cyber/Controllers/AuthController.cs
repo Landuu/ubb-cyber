@@ -10,6 +10,7 @@ using System.Security.Claims;
 using ubb_cyber.Database;
 using ubb_cyber.Models;
 using ubb_cyber.Services.UserService;
+using ubb_cyber.Utils;
 using ubb_cyber.ViewModels;
 
 namespace ubb_cyber.Controllers
@@ -60,6 +61,20 @@ namespace ubb_cyber.Controllers
             }
 
             var user = await _userService.GetUserByLoginSingle(viewModel.Login!);
+
+            // Check if password is expired
+            if (user.PasswordExpireDate >= DateTime.Now)
+            {
+                user.ResetPasswordKey = _userService.GenerateResetPasswordKey();
+                await _context.SaveChangesAsync();
+            }
+
+            // Redirect if reset password is present
+            if(user.ResetPasswordKey != null)
+            {
+                return RedirectToAction("ResetPassword", new { key = user.ResetPasswordKey });
+            }
+
             string role = user.Login.ToLower() == "admin" ? "admin" : "user";
             var claims = new List<Claim>()
             {
@@ -106,6 +121,12 @@ namespace ubb_cyber.Controllers
             }
 
             var user = await _userService.GetUserByKeySingle(viewModel.Key!);
+            await _context.UsedPasswords.AddAsync(new UsedPassword()
+            {
+                UserId = user.Id,
+                PasswordHash = user.PasswordHash,
+                ChangeDate = DateTime.Now
+            });
             user.PasswordHash = _userService.GeneratePasswordHash(viewModel.Password!);
             user.ResetPasswordKey = null;
             await _context.SaveChangesAsync();
@@ -144,6 +165,12 @@ namespace ubb_cyber.Controllers
             var user = await _userService.GetUserFromRequest();
             if (user == null) return RedirectToIndex();
 
+            await _context.UsedPasswords.AddAsync(new UsedPassword()
+            {
+                UserId = user.Id,
+                PasswordHash = user.PasswordHash,
+                ChangeDate = DateTime.Now
+            });
             user.PasswordHash = _userService.GeneratePasswordHash(viewModel.Password!);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Profile));
@@ -153,12 +180,6 @@ namespace ubb_cyber.Controllers
         [HttpGet]
         public async Task<IActionResult> Seed()
         {
-            var resetKeyGenerator = new Password()
-                .IncludeLowercase()
-                .IncludeUppercase()
-                .IncludeNumeric()
-                .LengthRequired(128);
-
             var users = new List<User>
             {
                 new User()
@@ -175,10 +196,21 @@ namespace ubb_cyber.Controllers
                 }
             };
 
+            var passwordPolicy = new PasswordPolicy()
+            {
+                Key = SecurityPolicies.STANDARD,
+                MinPasswordLength = 6,
+                NumbersCount = 2,
+                UppercaseCount = 1,
+                PasswordExpireDays = 10
+            };
+
+            await _context.PasswordPolicies.ExecuteDeleteAsync();
             await _context.Users.ExecuteDeleteAsync();
+            await _context.PasswordPolicies.AddAsync(passwordPolicy);
             await _context.Users.AddRangeAsync(users);
             await _context.SaveChangesAsync();
-            return Ok("Updated users");
+            return Ok("Updated database");
         }
 
         private IActionResult RedirectToIndex()

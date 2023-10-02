@@ -112,6 +112,19 @@ namespace ubb_cyber.Services.UserService
             return await _context.Users.SingleAsync(x => x.ResetPasswordKey == key);
         }
 
+        public async Task<PasswordPolicy?> GetPasswordPolicy()
+        {
+            return await _context.PasswordPolicies.FindAsync(SecurityPolicies.STANDARD);
+        }
+
+        public async Task<List<string>> GetUsedPasswords(int userId, CancellationToken cancellationToken)
+        {
+            return await _context.UsedPasswords
+                .Where(x => x.UserId == userId)
+                .Select(x => x.PasswordHash)
+                .ToListAsync(cancellationToken);
+        }
+
 
         public string GeneratePasswordHash(string password)
         {

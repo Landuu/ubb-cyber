@@ -16,8 +16,20 @@ namespace ubb_cyber.Models
         [MaxLength(256)]
         public string? ResetPasswordKey { get; set; }
 
+        public DateTime? PasswordExpireDate { get; set; }
+
         public DateTime? LastLogin { get; set; }
 
         public bool Locked { get; set; }
+
+        public int? OverrideMinPasswordLength { get; set; }
+
+        public int? OverridePasswordExpireDays { get; set; }
+
+        public int? OverrideUppercaseCount { get; set; }
+
+        public int? OverrideNumbersCount { get; set; }
+
+        public List<UsedPassword> UsedPasswords { get; set; } = new();
     }
 }

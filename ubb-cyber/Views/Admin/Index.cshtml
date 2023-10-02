@@ -6,9 +6,12 @@
     <p class="fs-5">
         Panel administracyjny, zalogowano jako: <b>@User.Identity?.Name</b>
     </p>
-    <div>
+    <div class="d-flex gap-3">
         <a class="btn btn-primary" asp-controller="Admin" asp-action="Users">
             Lista użytkowników
+        </a>
+        <a class="btn btn-primary" asp-controller="Admin" asp-action="Policy">
+            Edycja polityki haseł
         </a>
     </div>
 </div>

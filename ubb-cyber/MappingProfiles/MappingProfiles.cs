@@ -10,6 +10,7 @@ namespace ubb_cyber.MappingProfiles
         {
             CreateMap<User, PanelUserViewModel>();
             CreateMap<User, PanelEditUserViewModel>();
+            CreateMap<PasswordPolicy, PanelPolicyViewModel>().ReverseMap();
         }
     }
 }

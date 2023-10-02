@@ -34,7 +34,19 @@ namespace ubb_cyber.Validators
                 .MinimumLength(6)
                     .WithName("Nowe hasło")
                 .MaximumLength(32)
-                    .WithName("Nowe hasło");
+                    .WithName("Nowe hasło")
+                .MustAsync(async (model, password, cancellationToken) =>
+                {
+                    var user = await _userProvider.GetUserByRequest(cancellationToken);
+                    if (user == null || password == null) return false;
+                    var usedPasswords = await _userService.GetUsedPasswords(user.Id, cancellationToken);
+                    foreach(var used in usedPasswords)
+                    {
+                        if (_userService.ValidatePasswordHash(password, used)) 
+                            return false;
+                    }
+                    return true;
+                }).WithMessage("Podane hasło było już kiedyś użyte");
 
             RuleFor(model => model.PasswordConfirm)
                 .NotEmpty()

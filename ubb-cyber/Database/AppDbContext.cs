@@ -11,7 +11,10 @@ namespace ubb_cyber.Database
         {
             _configuration = configuration;
         }
+
         public DbSet<User> Users { get; set; }
+        public DbSet<UsedPassword> UsedPasswords { get; set; }
+        public DbSet<PasswordPolicy> PasswordPolicies { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

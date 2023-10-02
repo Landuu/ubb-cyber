@@ -35,6 +35,7 @@ builder.Services.AddScoped<IValidator<ResetPasswordViewModel>, ResetPasswordView
 builder.Services.AddScoped<IValidator<ChangePasswordViewModel>, ChangePasswordViewModelValidator>();
 builder.Services.AddScoped<IValidator<PanelAddUserViewModel>, PanelAddUserViewModelValidator>();
 builder.Services.AddScoped<IValidator<PanelEditUserViewModel>, PanelEditUserViewModelValidator>();
+builder.Services.AddScoped<IValidator<PanelPolicyViewModel>, PanelPolicyViewModelValidator>();
 
 var app = builder.Build();
 
