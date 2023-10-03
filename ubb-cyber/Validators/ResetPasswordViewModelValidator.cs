@@ -8,14 +8,12 @@ namespace ubb_cyber.Validators
 {
     public class ResetPasswordViewModelValidator : AbstractValidator<ResetPasswordViewModel>
     {
-        private readonly AppDbContext _context;
         private readonly IValidatorUserProvider _userProvider;
         private readonly IUserService _userService;
 
-        public ResetPasswordViewModelValidator(AppDbContext context, IUserService userService, IValidatorUserProvider userProvider)
+        public ResetPasswordViewModelValidator(IUserService userService, IValidatorUserProvider userProvider)
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
-            _context = context;
             _userProvider = userProvider;
             _userService = userService;
 

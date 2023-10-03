@@ -7,10 +7,13 @@ namespace ubb_cyber.Services.UserService
         string GeneratePasswordHash(string password);
         string GenerateResetPasswordKey();
         Task<PasswordPolicy?> GetPasswordPolicy();
+        Task<PasswordPolicy?> GetPasswordPolicy(CancellationToken cancellationToken);
+        PasswordPolicy? GetPasswordPolicySync();
         Task<List<string>> GetUsedPasswords(int userId, CancellationToken cancellationToken);
         Task<User?> GetUserById(int id);
         Task<User?> GetUserById(int id, CancellationToken cancellationToken);
         Task<User> GetUserByIdSingle(int id);
+        User? GetUserByIdSync(int id);
         Task<User?> GetUserByKey(string key);
         Task<User?> GetUserByKey(string key, CancellationToken cancellationToken);
         Task<User> GetUserByKeySingle(string key);
@@ -19,6 +22,7 @@ namespace ubb_cyber.Services.UserService
         Task<User> GetUserByLoginSingle(string login);
         Task<User?> GetUserFromRequest();
         Task<User?> GetUserFromRequest(CancellationToken cancellationToken);
+        UserPasswordPolicy? GetUserPasswordPolicy(int userId);
         bool IsLoggedIn();
         Task<bool> IsUserById(int id, CancellationToken cancellationToken);
         Task<bool> IsUserById(int id);

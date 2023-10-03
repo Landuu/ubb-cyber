@@ -42,6 +42,39 @@ namespace ubb_cyber.Validators
 
             RuleFor(model => model.Locked)
                 .NotNull();
+
+            // Policies
+            RuleFor(x => x.OverrideMinPasswordLength)
+                .GreaterThanOrEqualTo(2)
+                    .When(x => x.OverrideMinPasswordLength != null)
+                    .WithName("Minimalna długość hasła")
+                .LessThanOrEqualTo(32)
+                    .When(x => x.OverrideMinPasswordLength != null)
+                    .WithName("Minimalna długość hasła");
+
+            RuleFor(x => x.OverridePasswordExpireDays)
+                .GreaterThanOrEqualTo(1)
+                    .WithName("Ważność hasła (dni)")
+                    .When(x => x.OverrideMinPasswordLength != null)
+                .LessThanOrEqualTo(366)
+                    .WithName("Ważność hasła (dni)")
+                    .When(x => x.OverrideMinPasswordLength != null);
+
+            RuleFor(x => x.OverrideUppercaseCount)
+                .GreaterThanOrEqualTo(0)
+                    .WithName("Minmalna ilość dużych liter")
+                    .When(x => x.OverrideMinPasswordLength != null)
+                .LessThanOrEqualTo(8)
+                    .WithName("Minmalna ilość dużych liter")
+                    .When(x => x.OverrideMinPasswordLength != null);
+
+            RuleFor(x => x.OverrideNumbersCount)
+                .GreaterThanOrEqualTo(0)
+                    .WithName("Minimalna ilość cyfr")
+                    .When(x => x.OverrideMinPasswordLength != null)
+                .LessThanOrEqualTo(8)
+                    .WithName("Minimalna ilość cyfr")
+                    .When(x => x.OverrideMinPasswordLength != null);
         }
     }
 }

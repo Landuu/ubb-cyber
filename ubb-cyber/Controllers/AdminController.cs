@@ -75,11 +75,18 @@ namespace ubb_cyber.Controllers
             }
 
             var user = await _userService.GetUserByIdSingle(viewModel.Id);
+            
             if(user.Login != viewModel.Login) 
                 user.Login = viewModel.Login;
+            
             if(!string.IsNullOrWhiteSpace(viewModel.NewPassword)) 
                 user.PasswordHash = _userService.GeneratePasswordHash(viewModel.NewPassword);
+            
             user.Locked = viewModel.Locked;
+            user.OverrideMinPasswordLength = viewModel.OverrideMinPasswordLength;
+            user.OverridePasswordExpireDays = viewModel.OverridePasswordExpireDays;
+            user.OverrideUppercaseCount = viewModel.OverrideUppercaseCount;
+            user.OverrideNumbersCount = viewModel.OverrideNumbersCount;
 
             await _context.SaveChangesAsync();
             return RedirectToUsers();

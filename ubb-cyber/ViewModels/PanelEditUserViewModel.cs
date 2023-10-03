@@ -11,5 +11,13 @@
         public string? NewPasswordConfirm { get; set; }
 
         public bool Locked { get; set; }
+
+        public int? OverrideMinPasswordLength { get; set; }
+
+        public int? OverridePasswordExpireDays { get; set; }
+
+        public int? OverrideUppercaseCount { get; set; }
+
+        public int? OverrideNumbersCount { get; set; }
     }
 }
