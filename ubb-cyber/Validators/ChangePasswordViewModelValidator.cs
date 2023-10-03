@@ -31,10 +31,30 @@ namespace ubb_cyber.Validators
             RuleFor(model => model.Password)
                 .NotEmpty()
                     .WithName("Nowe hasło")
-                .MinimumLength(6)
-                    .WithName("Nowe hasło")
-                .MaximumLength(32)
-                    .WithName("Nowe hasło")
+                .MustAsync(async (model, password, cancellationToken) =>
+                {
+                    await _userProvider.GetUserByRequest(cancellationToken);
+                    var policy = await _userProvider.GetUserPasswordPolicy(cancellationToken);
+                    if (password == null || policy == null) return false;
+                    if (password.Length < policy.MinPasswordLength || password.Length > 32) return false;
+                    return true;
+                }).WithMessage($"Hasło musi mieć od {_userProvider.PasswordPolicy?.MinPasswordLength ?? 0} do 32 znaków")
+                .MustAsync(async (model, password, cancellationToken) =>
+                {
+                    await _userProvider.GetUserByRequest(cancellationToken);
+                    var policy = await _userProvider.GetUserPasswordPolicy(cancellationToken);
+                    if (password == null || policy == null) return false;
+                    int countUppercase = password.Count(char.IsUpper);
+                    return countUppercase >= policy.UppercaseCount;
+                }).WithMessage($"Hasło musi zawierać co najmniej {_userProvider.PasswordPolicy?.NumbersCount ?? 0} duże litery")
+                .MustAsync(async (model, password, cancellationToken) =>
+                {
+                    await _userProvider.GetUserByRequest(cancellationToken);
+                    var policy = await _userProvider.GetUserPasswordPolicy(cancellationToken);
+                    if (password == null || policy == null) return false;
+                    int countNumbers = password.Count(char.IsNumber);
+                    return countNumbers >= policy.UppercaseCount;
+                }).WithMessage($"Hasło musi zawierać co najmniej {_userProvider.PasswordPolicy?.NumbersCount ?? 0} cyfry")
                 .MustAsync(async (model, password, cancellationToken) =>
                 {
                     var user = await _userProvider.GetUserByRequest(cancellationToken);

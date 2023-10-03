@@ -1,4 +1,5 @@
-﻿using ubb_cyber.Models;
+﻿using System.Diagnostics;
+using ubb_cyber.Models;
 using ubb_cyber.Services.UserService;
 
 namespace ubb_cyber.Services.ValidatorUserProvider
@@ -7,6 +8,7 @@ namespace ubb_cyber.Services.ValidatorUserProvider
     {
         private readonly IUserService _userService;
         public User? User { get; private set; }
+        public UserPasswordPolicy? PasswordPolicy { get; private set; }
 
         public ValidatorUserProvider(IUserService userService)
         {
@@ -29,6 +31,8 @@ namespace ubb_cyber.Services.ValidatorUserProvider
 
         public async Task<User?> GetUserByRequest(CancellationToken cancellationToken)
         {
+            Debug.WriteLine(User == null ? "TRUE" : "FALSE");
+            Debug.WriteLine(PasswordPolicy == null ? "PP TRUE" : "PP FALSE");
             User ??= await _userService.GetUserFromRequest(cancellationToken);
             return User;
         }
@@ -38,6 +42,13 @@ namespace ubb_cyber.Services.ValidatorUserProvider
             if(resetKey == null) return null;
             User ??= await _userService.GetUserByKey(resetKey, cancellationToken);
             return User;
+        }
+
+        public async Task<UserPasswordPolicy?> GetUserPasswordPolicy(CancellationToken cancellationToken)
+        {
+            if(User == null) return null;
+            PasswordPolicy ??= await _userService.GetUserPasswordPolicy(User.Id, cancellationToken);
+            return PasswordPolicy;
         }
     }
 }

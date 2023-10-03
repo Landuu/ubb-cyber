@@ -8,14 +8,12 @@ namespace ubb_cyber.Validators
 {
     public class PanelEditUserViewModelValidator : AbstractValidator<PanelEditUserViewModel>
     {
-        private readonly AppDbContext _context;
         private readonly IUserService _userService;
         private readonly IValidatorUserProvider _userProvider;
 
-        public PanelEditUserViewModelValidator(AppDbContext context, IUserService userService, IValidatorUserProvider userProvider)
+        public PanelEditUserViewModelValidator(IUserService userService, IValidatorUserProvider userProvider)
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
-            _context = context;
             _userService = userService;
             _userProvider = userProvider;
 

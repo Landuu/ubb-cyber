@@ -140,10 +140,10 @@ namespace ubb_cyber.Services.UserService
                 .ToListAsync(cancellationToken);
         }
 
-        public UserPasswordPolicy? GetUserPasswordPolicy(int userId)
+        public async Task<UserPasswordPolicy?> GetUserPasswordPolicy(int userId, CancellationToken cancellationToken)
         {
-            var user = GetUserByIdSync(userId);
-            var defaultPolicy = GetPasswordPolicySync();
+            var user = await GetUserById(userId, cancellationToken);
+            var defaultPolicy = await GetPasswordPolicy(cancellationToken);
             if (user == null || defaultPolicy == null) return null;
 
             var userPolicy = new UserPasswordPolicy()
