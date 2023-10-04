@@ -23,6 +23,7 @@ namespace ubb_cyber.Services.UserService
         Task<User?> GetUserFromRequest();
         Task<User?> GetUserFromRequest(CancellationToken cancellationToken);
         Task<UserPasswordPolicy?> GetUserPasswordPolicy(int userId, CancellationToken cancellationToken);
+        Task<UserPasswordPolicy?> GetUserPasswordPolicy(int userId);
         bool IsLoggedIn();
         Task<bool> IsUserById(int id, CancellationToken cancellationToken);
         Task<bool> IsUserById(int id);

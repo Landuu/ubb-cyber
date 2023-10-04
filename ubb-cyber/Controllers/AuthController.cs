@@ -92,13 +92,9 @@ namespace ubb_cyber.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> ResetPassword([FromQuery] string? key)
+        public IActionResult ResetPassword([FromQuery] string? key)
         {
             if (string.IsNullOrWhiteSpace(key))
-                return RedirectToIndex();
-
-            var user = await _userService.GetUserByKey(key);
-            if (user == null)
                 return RedirectToIndex();
 
             var viewModel = new ResetPasswordViewModel()
@@ -112,6 +108,13 @@ namespace ubb_cyber.Controllers
         [HttpPost]
         public async Task<IActionResult> ResetPassword([FromForm] ResetPasswordViewModel viewModel)
         {
+            if (viewModel.Key == null) return RedirectToIndex();
+            var user = await _userService.GetUserByKey(viewModel.Key);
+            if (user == null) return RedirectToIndex();
+            var passwordPolicy = await _userService.GetUserPasswordPolicy(user.Id);
+            if (passwordPolicy == null) return RedirectToIndex();
+
+            viewModel.PasswordPolicy = passwordPolicy;
             var result = await _resetValidator.ValidateAsync(viewModel);
 
             if (!result.IsValid)
@@ -120,7 +123,6 @@ namespace ubb_cyber.Controllers
                 return View(viewModel);
             }
 
-            var user = await _userService.GetUserByKeySingle(viewModel.Key!);
             await _context.UsedPasswords.AddAsync(new UsedPassword()
             {
                 UserId = user.Id,
@@ -154,6 +156,12 @@ namespace ubb_cyber.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangePassword([FromForm] ChangePasswordViewModel viewModel)
         {
+            var user = await _userService.GetUserFromRequest();
+            if (user == null) return RedirectToIndex();
+            var passwordPolicy = await _userService.GetUserPasswordPolicy(user.Id);
+            if(passwordPolicy == null) return RedirectToIndex();
+
+            viewModel.PasswordPolicy = passwordPolicy;
             var result = await _changeValidator.ValidateAsync(viewModel);
 
             if (!result.IsValid)
@@ -161,9 +169,6 @@ namespace ubb_cyber.Controllers
                 result.AddToModelState(ModelState);
                 return View(viewModel);
             }
-
-            var user = await _userService.GetUserFromRequest();
-            if (user == null) return RedirectToIndex();
 
             await _context.UsedPasswords.AddAsync(new UsedPassword()
             {

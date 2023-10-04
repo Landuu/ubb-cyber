@@ -38,7 +38,7 @@ namespace ubb_cyber.Validators
                     if (password == null || policy == null) return false;
                     if (password.Length < policy.MinPasswordLength || password.Length > 32) return false;
                     return true;
-                }).WithMessage($"Hasło musi mieć od {_userProvider.PasswordPolicy?.MinPasswordLength ?? 0} do 32 znaków")
+                }).WithMessage(model => $"Hasło musi mieć od {model.PasswordPolicy?.MinPasswordLength ?? 0} do 32 znaków")
                 .MustAsync(async (model, password, cancellationToken) =>
                 {
                     await _userProvider.GetUserByRequest(cancellationToken);
@@ -46,7 +46,7 @@ namespace ubb_cyber.Validators
                     if (password == null || policy == null) return false;
                     int countUppercase = password.Count(char.IsUpper);
                     return countUppercase >= policy.UppercaseCount;
-                }).WithMessage($"Hasło musi zawierać co najmniej {_userProvider.PasswordPolicy?.NumbersCount ?? 0} duże litery")
+                }).WithMessage(model => $"Hasło musi zawierać co najmniej {model.PasswordPolicy?.UppercaseCount ?? 0} duże litery")
                 .MustAsync(async (model, password, cancellationToken) =>
                 {
                     await _userProvider.GetUserByRequest(cancellationToken);
@@ -54,7 +54,7 @@ namespace ubb_cyber.Validators
                     if (password == null || policy == null) return false;
                     int countNumbers = password.Count(char.IsNumber);
                     return countNumbers >= policy.UppercaseCount;
-                }).WithMessage($"Hasło musi zawierać co najmniej {_userProvider.PasswordPolicy?.NumbersCount ?? 0} cyfry")
+                }).WithMessage(model => $"Hasło musi zawierać co najmniej {model.PasswordPolicy?.NumbersCount ?? 0} cyfry")
                 .MustAsync(async (model, password, cancellationToken) =>
                 {
                     var user = await _userProvider.GetUserByRequest(cancellationToken);

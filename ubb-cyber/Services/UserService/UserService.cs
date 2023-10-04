@@ -156,6 +156,22 @@ namespace ubb_cyber.Services.UserService
             return userPolicy;
         }
 
+        public async Task<UserPasswordPolicy?> GetUserPasswordPolicy(int userId)
+        {
+            var user = await GetUserById(userId);
+            var defaultPolicy = await GetPasswordPolicy();
+            if (user == null || defaultPolicy == null) return null;
+
+            var userPolicy = new UserPasswordPolicy()
+            {
+                MinPasswordLength = user.OverrideMinPasswordLength ?? defaultPolicy.MinPasswordLength,
+                PasswordExpireDays = user.OverridePasswordExpireDays ?? defaultPolicy.PasswordExpireDays,
+                UppercaseCount = user.OverrideUppercaseCount ?? defaultPolicy.UppercaseCount,
+                NumbersCount = user.OverrideNumbersCount ?? defaultPolicy.NumbersCount
+            };
+            return userPolicy;
+        }
+
         public string GeneratePasswordHash(string password)
         {
             return BCrypt.Net.BCrypt.EnhancedHashPassword(password);
