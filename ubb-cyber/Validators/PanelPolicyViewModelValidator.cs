@@ -22,7 +22,7 @@ namespace ubb_cyber.Validators
                     .WithName("Ważność hasła (dni)")
                 .GreaterThanOrEqualTo(1)
                     .WithName("Ważność hasła (dni)")
-                .LessThanOrEqualTo(366)
+                .LessThanOrEqualTo(9999)
                     .WithName("Ważność hasła (dni)");
 
             RuleFor(x => x.UppercaseCount)

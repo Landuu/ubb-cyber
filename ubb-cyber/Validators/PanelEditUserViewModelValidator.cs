@@ -54,7 +54,7 @@ namespace ubb_cyber.Validators
                 .GreaterThanOrEqualTo(1)
                     .WithName("Ważność hasła (dni)")
                     .When(x => x.OverrideMinPasswordLength != null)
-                .LessThanOrEqualTo(366)
+                .LessThanOrEqualTo(9999)
                     .WithName("Ważność hasła (dni)")
                     .When(x => x.OverrideMinPasswordLength != null);
 
