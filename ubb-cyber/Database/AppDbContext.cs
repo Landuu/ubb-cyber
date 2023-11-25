@@ -15,6 +15,7 @@ namespace ubb_cyber.Database
         public DbSet<User> Users { get; set; }
         public DbSet<UsedPassword> UsedPasswords { get; set; }
         public DbSet<PasswordPolicy> PasswordPolicies { get; set; }
+        public DbSet<LoginEvent> LoginEvents { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

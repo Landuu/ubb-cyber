@@ -20,7 +20,11 @@ namespace ubb_cyber.Models
 
         public DateTime? LastLogin { get; set; }
 
+        public int InvalidPasswordCounter { get; set; }
+
         public bool Locked { get; set; }
+
+        public DateTime? LockedUntilDate { get; set; }
 
         public int? OverrideMinPasswordLength { get; set; }
 

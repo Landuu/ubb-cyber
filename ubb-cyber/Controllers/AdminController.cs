@@ -88,6 +88,13 @@ namespace ubb_cyber.Controllers
             user.OverrideUppercaseCount = viewModel.OverrideUppercaseCount;
             user.OverrideNumbersCount = viewModel.OverrideNumbersCount;
 
+            await _context.LoginEvents.AddAsync(new LoginEvent()
+            {
+                InsertDate = DateTime.Now,
+                Action = LoginEventAction.EDIT_USER,
+                UserLogin = user.Login
+            });
+
             await _context.SaveChangesAsync();
             return RedirectToUsers();
         }
@@ -116,6 +123,13 @@ namespace ubb_cyber.Controllers
                 ResetPasswordKey = _userService.GenerateResetPasswordKey()
             };
 
+            await _context.LoginEvents.AddAsync(new LoginEvent()
+            {
+                InsertDate = DateTime.Now,
+                Action = LoginEventAction.ADD_USER,
+                UserLogin = user.Login
+            });
+
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
             return RedirectToUsers();
@@ -124,7 +138,18 @@ namespace ubb_cyber.Controllers
         [HttpPost("[controller]/Users/Delete")]
         public async Task<IActionResult> DeleteUser([FromQuery] int userId)
         {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return BadRequest();
+
             await _context.Users.Where(x => x.Id == userId).ExecuteDeleteAsync();
+            
+            await _context.LoginEvents.AddAsync(new LoginEvent()
+            {
+                InsertDate = DateTime.Now,
+                Action = LoginEventAction.DELETE_USER,
+                UserLogin = user.Login
+            });
+
             return RedirectToUsers();
         }
 
@@ -153,12 +178,20 @@ namespace ubb_cyber.Controllers
             return RedirectToIndex();
         }
 
-        public IActionResult RedirectToUsers()
+        public async Task<IActionResult> Events()
+        {
+            var events = await _context.LoginEvents
+                .OrderByDescending(x => x.Id)
+                .ToListAsync();
+            return View(events);
+        }
+
+        private IActionResult RedirectToUsers()
         {
             return RedirectToAction("Users");
         }
 
-        public IActionResult RedirectToIndex()
+        private IActionResult RedirectToIndex()
         {
             return RedirectToAction("Index");
         }

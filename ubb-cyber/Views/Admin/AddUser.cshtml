@@ -10,33 +10,64 @@
          Panel administracyjny / Lista użytkowników aplikacji / Nowy użytkownik
     </p>
     <div class="d-flex justify-content-center">
-    <div class="w-50 p-4">
-        <div>
-            <form asp-controller="Admin" asp-action="AddUser">
-                <div class="mb-3">
-                    <label for="inputLogin" class="form-label">Login:</label>
-                    <input asp-for="Login" type="text" class="form-control" id="inputLogin">
-                    <span class="text-danger" asp-validation-for="Login"></span>
-                </div>
+        <div class="w-50 p-4">
+            <div>
+                <form asp-controller="Admin" asp-action="AddUser">
+                    <div class="mb-3">
+                        <label for="inputLogin" class="form-label">Login:</label>
+                        <input asp-for="Login" type="text" class="form-control" id="inputLogin">
+                        <span class="text-danger" asp-validation-for="Login"></span>
+                    </div>
 
-                <div class="mb-3">
-                    <label for="inputPassword" class="form-label">Hasło:</label>
-                    <input asp-for="Password" type="password" class="form-control" id="inputPassword">
-                    <span class="text-danger" asp-validation-for="Password"></span>
-                </div>
+                    <div class="mb-3">
+                        <label for="inputPassword" class="form-label">Hasło:</label>
+                        <input asp-for="Password" type="password" class="form-control" id="inputPassword">
+                        <input id="otp" type="checkbox"/>
+                        <label for="otp">Hasło jednorazowe</label>
+                        <span class="text-danger" asp-validation-for="Password"></span>
+                    </div>
 
-                <div class="mb-3">
-                    <label for="inputPasswordConfirm" class="form-label">Powtórz hasło:</label>
-                    <input asp-for="PasswordConfirm" type="password" class="form-control" id="inputPasswordConfirm">
-                    <span class="text-danger" asp-validation-for="PasswordConfirm"></span>
-                </div>
+                    <div class="mb-3">
+                        <label for="inputPasswordConfirm" class="form-label">Powtórz hasło:</label>
+                        <input asp-for="PasswordConfirm" type="password" class="form-control" id="inputPasswordConfirm">
+                        <span class="text-danger" asp-validation-for="PasswordConfirm"></span>
+                    </div>
 
-                <div class="d-flex justify-content-center">
-                    <a asp-controller="Admin" asp-action="Users" class="btn btn-primary px-3 me-3">Anuluj</a>
-                    <button type="submit" class="btn btn-success px-3">Dodaj użytkownika</button>
-                </div>
-            </form>
+                    <div class="d-flex justify-content-center">
+                        <a asp-controller="Admin" asp-action="Users" class="btn btn-primary px-3 me-3">Anuluj</a>
+                        <button type="submit" class="btn btn-success px-3">Dodaj użytkownika</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-    </div>
 </div>
+
+<script>
+    const inputPassword = document.getElementById("inputPassword");
+    const inputPasswordConfirm = document.getElementById("inputPasswordConfirm");
+    const otpCheckbox = document.getElementById("otp");
+
+    otp.addEventListener("change", (e) => {
+        const value = e.currentTarget.checked;
+        if (value) {
+            const pass = Math.random().toString(36).slice(-8);
+            inputPassword.value = pass;
+            inputPasswordConfirm.value = pass;
+            inputPassword.type = "text";
+            inputPasswordConfirm.type = "text";
+            inputPassword.readOnly = true;
+            inputPasswordConfirm.readOnly = true;
+        } else {
+            inputPassword.value = "";
+            inputPasswordConfirm.value = "";
+            inputPassword.type = "password";
+            inputPasswordConfirm.type = "password";
+            inputPassword.readOnly = false;
+            inputPasswordConfirm.readOnly = false;
+        }
+    })
+
+
+
+</script>

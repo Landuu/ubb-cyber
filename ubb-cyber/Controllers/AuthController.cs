@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PasswordGenerator;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
+using System.Threading;
 using ubb_cyber.Database;
 using ubb_cyber.Models;
 using ubb_cyber.Services.UserService;
@@ -84,6 +86,12 @@ namespace ubb_cyber.Controllers
             };
 
             user.LastLogin = DateTime.Now;
+            await _context.LoginEvents.AddAsync(new LoginEvent()
+            {
+                InsertDate = DateTime.Now,
+                Action = LoginEventAction.LOGIN_SUCCESS,
+                UserLogin = user.Login
+            });
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
@@ -131,14 +139,33 @@ namespace ubb_cyber.Controllers
             });
             user.PasswordHash = _userService.GeneratePasswordHash(viewModel.Password!);
             user.ResetPasswordKey = null;
+
+            await _context.LoginEvents.AddAsync(new LoginEvent()
+            {
+                InsertDate = DateTime.Now,
+                Action = LoginEventAction.CHANGE_PASSWORD,
+                UserLogin = user.Login
+            });
+
             await _context.SaveChangesAsync();
             return RedirectToIndex();
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
+            var user = await _userService.GetUserFromRequest();
+            if (user == null) return BadRequest();
+
+            await _context.LoginEvents.AddAsync(new LoginEvent()
+            {
+                InsertDate = DateTime.Now,
+                Action = LoginEventAction.LOGOUT,
+                UserLogin = user.Login,
+            });
+            await _context.SaveChangesAsync();
+
             await HttpContext.SignOutAsync();
             return RedirectToIndex();
         }
@@ -177,6 +204,14 @@ namespace ubb_cyber.Controllers
                 ChangeDate = DateTime.Now
             });
             user.PasswordHash = _userService.GeneratePasswordHash(viewModel.Password!);
+
+            await _context.LoginEvents.AddAsync(new LoginEvent()
+            {
+                InsertDate = DateTime.Now,
+                Action = LoginEventAction.CHANGE_PASSWORD,
+                UserLogin = user.Login
+            });
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Profile));
         }

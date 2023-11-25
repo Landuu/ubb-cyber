@@ -1,0 +1,39 @@
+﻿@using ubb_cyber.ViewModels;
+@model List<LoginEvent>;
+
+@{
+    ViewData["Title"] = "Zdarzenia - Panel administracyjny";
+}
+
+<div>
+    <div class="d-flex justify-content-between">
+        <p class="fs-5">
+             Panel administracyjny / Lista zdarzeń
+        </p>
+    </div>
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Typ akcji</th>
+                    <th scope="col">Data</th>
+                    <th scope="col">Użytkownik</th>
+                    <th scope="col">Opis</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var loginEvent in Model)
+                {
+                    <tr>
+                        <td>@loginEvent.Id</td>
+                        <td>@loginEvent.Action</td>
+                        <td>@loginEvent.InsertDate</td>
+                        <td>@loginEvent.UserLogin</td>
+                        <td>@loginEvent.Description</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
