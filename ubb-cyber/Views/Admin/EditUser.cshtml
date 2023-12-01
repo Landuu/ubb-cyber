@@ -10,72 +10,104 @@
          Panel administracyjny / Lista użytkowników aplikacji / @Model.Id / Edycja
     </p>
     <div class="d-flex justify-content-center">
-    <div class="w-50 p-4">
-        <div>
-            <form asp-controller="Admin" asp-action="EditUser" asp-route-userId="@Model.Id">
-                <div class="px-3 py-1 bg-secondary text-bg-secondary fw-medium w-100">KONTO</div>
+        <div class="w-50 p-4">
+            <div>
+                <form asp-controller="Admin" asp-action="EditUser" asp-route-userId="@Model.Id">
+                    <div class="px-3 py-1 bg-secondary text-bg-secondary fw-medium w-100">KONTO</div>
 
-                <div class="mt-2">
-                    <label for="inputId" class="form-label">Id:</label>
-                    <input asp-for="Id" value="@Model.Id" type="text" class="form-control" id="inputId" readonly="readonly">
-                    <span class="text-danger" asp-validation-for="Id"></span>
-                </div>
+                    <div class="mt-2">
+                        <label for="inputId" class="form-label">Id:</label>
+                        <input asp-for="Id" value="@Model.Id" type="text" class="form-control" id="inputId" readonly="readonly">
+                        <span class="text-danger" asp-validation-for="Id"></span>
+                    </div>
 
-                <div class="mt-2">
-                    <label for="inputLogin" class="form-label">Login:</label>
-                    <input asp-for="Login" value="@Model.Login" type="text" class="form-control" id="inputLogin">
-                    <span class="text-danger" asp-validation-for="Login"></span>
-                </div>
+                    <div class="mt-2">
+                        <label for="inputLogin" class="form-label">Login:</label>
+                        <input asp-for="Login" value="@Model.Login" type="text" class="form-control" id="inputLogin">
+                        <span class="text-danger" asp-validation-for="Login"></span>
+                    </div>
 
-                <div class="mt-2">
-                    <label for="inputPassword" class="form-label">Nowe hasło (opcjonalne):</label>
-                    <input asp-for="NewPassword" type="password" class="form-control" id="inputPassword">
-                    <span class="text-danger" asp-validation-for="NewPassword"></span>
-                </div>
+                    <div class="mt-2">
+                        <label for="inputPassword" class="form-label">Nowe hasło (opcjonalne):</label>
+                        <input asp-for="NewPassword" type="password" class="form-control" id="inputPassword">
+                        <span class="text-danger" asp-validation-for="NewPassword"></span>
+                    </div>
 
-                <div class="mt-2">
-                    <label for="inputPasswordConfirm" class="form-label">Powtórz nowe hasło:</label>
-                    <input asp-for="NewPasswordConfirm" type="password" class="form-control" id="inputPasswordConfirm">
-                    <span class="text-danger" asp-validation-for="NewPasswordConfirm"></span>
-                </div>
+                    <div class="mt-2">
+                        <label for="inputPasswordConfirm" class="form-label">Powtórz nowe hasło:</label>
+                        <input asp-for="NewPasswordConfirm" type="password" class="form-control" id="inputPasswordConfirm">
+                        <span class="text-danger" asp-validation-for="NewPasswordConfirm"></span>
+                    </div>
 
-                <div class="mt-3 form-check">
-                    @Html.CheckBoxFor(m => m.Locked, new { @class = "form-check-input" })
-                    @Html.LabelFor(x => x.Locked, "Konto zablokowane", new { @class = "form-check-label" })
-                </div>
+                    <div class="mt-3 form-check">
+                        @Html.CheckBoxFor(m => m.Otp, new { @class = "form-check-input", id = "otp" })
+                        @Html.LabelFor(x => x.Otp, "Hasło jednorazowe", new { @class = "form-check-label" })
+                    </div>
 
-                <div class="mt-4 px-3 py-1 bg-secondary text-bg-secondary fw-medium w-100">POLITYKA HASEŁ</div>
+                    <div class="mt-3 form-check">
+                        @Html.CheckBoxFor(m => m.Locked, new { @class = "form-check-input" })
+                        @Html.LabelFor(x => x.Locked, "Konto zablokowane", new { @class = "form-check-label" })
+                    </div>
 
-                <div class="mt-2">
-                    <label for="inputMinPasswordLength" class="form-label">[Override] Minimalna długość hasła:</label>
-                    <input asp-for="OverrideMinPasswordLength" value="@Model.OverrideMinPasswordLength" type="number" class="form-control" id="inputMinPasswordLength">
-                    <span class="text-danger" asp-validation-for="OverrideMinPasswordLength"></span>
-                </div>
+                    <div class="mt-4 px-3 py-1 bg-secondary text-bg-secondary fw-medium w-100">POLITYKA HASEŁ</div>
 
-                <div class="mt-2">
-                    <label for="inputPasswordExpireDays" class="form-label">[Override] Ważność hasła (dni):</label>
-                    <input asp-for="OverridePasswordExpireDays" value="@Model.OverridePasswordExpireDays" type="number" class="form-control" id="inputPasswordExpireDays">
-                    <span class="text-danger" asp-validation-for="OverridePasswordExpireDays"></span>
-                </div>
+                    <div class="mt-2">
+                        <label for="inputMinPasswordLength" class="form-label">[Override] Minimalna długość hasła:</label>
+                        <input asp-for="OverrideMinPasswordLength" value="@Model.OverrideMinPasswordLength" type="number" class="form-control" id="inputMinPasswordLength">
+                        <span class="text-danger" asp-validation-for="OverrideMinPasswordLength"></span>
+                    </div>
 
-                <div class="mt-2">
-                    <label for="inputOverrideUppercaseCount" class="form-label">[Override] Minimalna ilość dużych liter:</label>
-                    <input asp-for="OverrideUppercaseCount" value="@Model.OverrideUppercaseCount" type="number" class="form-control" id="inputOverrideUppercaseCount">
-                    <span class="text-danger" asp-validation-for="OverrideUppercaseCount"></span>
-                </div>
+                    <div class="mt-2">
+                        <label for="inputPasswordExpireDays" class="form-label">[Override] Ważność hasła (dni):</label>
+                        <input asp-for="OverridePasswordExpireDays" value="@Model.OverridePasswordExpireDays" type="number" class="form-control" id="inputPasswordExpireDays">
+                        <span class="text-danger" asp-validation-for="OverridePasswordExpireDays"></span>
+                    </div>
 
-                <div class="mt-2">
-                    <label for="inputOverrideNumbersCount" class="form-label">[Override] Minimalna ilość cyfr:</label>
-                    <input asp-for="OverrideNumbersCount" value="@Model.OverrideNumbersCount" type="number" class="form-control" id="inputOverrideNumbersCount">
-                    <span class="text-danger" asp-validation-for="OverrideNumbersCount"></span>
-                </div>
+                    <div class="mt-2">
+                        <label for="inputOverrideUppercaseCount" class="form-label">[Override] Minimalna ilość dużych liter:</label>
+                        <input asp-for="OverrideUppercaseCount" value="@Model.OverrideUppercaseCount" type="number" class="form-control" id="inputOverrideUppercaseCount">
+                        <span class="text-danger" asp-validation-for="OverrideUppercaseCount"></span>
+                    </div>
 
-                <div class="mt-3 d-flex justify-content-center">
-                    <a asp-controller="Admin" asp-action="Users" class="btn btn-primary px-3 me-3">Anuluj</a>
-                    <button type="submit" class="btn btn-success px-3">Zapisz zmiany</button>
-                </div>
-            </form>
+                    <div class="mt-2">
+                        <label for="inputOverrideNumbersCount" class="form-label">[Override] Minimalna ilość cyfr:</label>
+                        <input asp-for="OverrideNumbersCount" value="@Model.OverrideNumbersCount" type="number" class="form-control" id="inputOverrideNumbersCount">
+                        <span class="text-danger" asp-validation-for="OverrideNumbersCount"></span>
+                    </div>
+
+                    <div class="mt-3 d-flex justify-content-center">
+                        <a asp-controller="Admin" asp-action="Users" class="btn btn-primary px-3 me-3">Anuluj</a>
+                        <button type="submit" class="btn btn-success px-3">Zapisz zmiany</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-    </div>
 </div>
+
+
+<script>
+    const inputPassword = document.getElementById("inputPassword");
+    const inputPasswordConfirm = document.getElementById("inputPasswordConfirm");
+    const otpCheckbox = document.getElementById("otp");
+
+    otp.addEventListener("change", (e) => {
+        const value = e.currentTarget.checked;
+        if (value) {
+            const pass = Math.random().toString(36).slice(-8);
+            inputPassword.value = pass;
+            inputPasswordConfirm.value = pass;
+            inputPassword.type = "text";
+            inputPasswordConfirm.type = "text";
+            inputPassword.readOnly = true;
+            inputPasswordConfirm.readOnly = true;
+        } else {
+            inputPassword.value = "";
+            inputPasswordConfirm.value = "";
+            inputPassword.type = "password";
+            inputPasswordConfirm.type = "password";
+            inputPassword.readOnly = false;
+            inputPasswordConfirm.readOnly = false;
+        }
+    })
+</script>

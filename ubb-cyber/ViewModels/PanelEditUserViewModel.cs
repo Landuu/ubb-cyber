@@ -12,6 +12,8 @@
 
         public bool Locked { get; set; }
 
+        public bool Otp { get; set; }
+
         public int? OverrideMinPasswordLength { get; set; }
 
         public int? OverridePasswordExpireDays { get; set; }

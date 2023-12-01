@@ -81,6 +81,9 @@ namespace ubb_cyber.Controllers
             
             if(!string.IsNullOrWhiteSpace(viewModel.NewPassword)) 
                 user.PasswordHash = _userService.GeneratePasswordHash(viewModel.NewPassword);
+
+            if (viewModel.Otp)
+                user.ResetPasswordKey = _userService.GenerateResetPasswordKey();
             
             user.Locked = viewModel.Locked;
             user.OverrideMinPasswordLength = viewModel.OverrideMinPasswordLength;
