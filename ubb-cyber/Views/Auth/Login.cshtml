@@ -55,6 +55,7 @@
 
     inputLogin.addEventListener("change", (e) => {
         otpA.value = e.target.value.length;
+        console.log('otp', Number(otpA.value) * Math.log(Number(otpX.value)));
     });
 
     window.addEventListener("load", () => {
