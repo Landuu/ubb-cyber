@@ -84,30 +84,3 @@
         </div>
     </div>
 </div>
-
-
-<script>
-    const inputPassword = document.getElementById("inputPassword");
-    const inputPasswordConfirm = document.getElementById("inputPasswordConfirm");
-    const otpCheckbox = document.getElementById("otp");
-
-    otp.addEventListener("change", (e) => {
-        const value = e.currentTarget.checked;
-        if (value) {
-            const pass = Math.random().toString(36).slice(-8);
-            inputPassword.value = pass;
-            inputPasswordConfirm.value = pass;
-            inputPassword.type = "text";
-            inputPasswordConfirm.type = "text";
-            inputPassword.readOnly = true;
-            inputPasswordConfirm.readOnly = true;
-        } else {
-            inputPassword.value = "";
-            inputPasswordConfirm.value = "";
-            inputPassword.type = "password";
-            inputPasswordConfirm.type = "password";
-            inputPassword.readOnly = false;
-            inputPasswordConfirm.readOnly = false;
-        }
-    })
-</script>

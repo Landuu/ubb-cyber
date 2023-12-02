@@ -82,8 +82,7 @@ namespace ubb_cyber.Controllers
             if(!string.IsNullOrWhiteSpace(viewModel.NewPassword)) 
                 user.PasswordHash = _userService.GeneratePasswordHash(viewModel.NewPassword);
 
-            if (viewModel.Otp)
-                user.ResetPasswordKey = _userService.GenerateResetPasswordKey();
+            user.Otp = viewModel.Otp;
             
             user.Locked = viewModel.Locked;
             user.OverrideMinPasswordLength = viewModel.OverrideMinPasswordLength;
@@ -123,7 +122,8 @@ namespace ubb_cyber.Controllers
             {
                 Login = viewModel.Login,
                 PasswordHash = _userService.GeneratePasswordHash(viewModel.Password),
-                ResetPasswordKey = _userService.GenerateResetPasswordKey()
+                ResetPasswordKey = _userService.GenerateResetPasswordKey(),
+                Otp = viewModel.Otp
             };
 
             await _context.LoginEvents.AddAsync(new LoginEvent()

@@ -9,5 +9,7 @@
         public DateTime? LastLogin { get; set; }
 
         public bool Locked { get; set; }
+
+        public bool Otp { get; set; }
     }
 }

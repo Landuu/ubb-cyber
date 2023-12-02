@@ -22,6 +22,8 @@ namespace ubb_cyber.Models
 
         public int InvalidPasswordCounter { get; set; }
 
+        public bool Otp { get; set; }
+
         public bool Locked { get; set; }
 
         public DateTime? LockedUntilDate { get; set; }

@@ -7,5 +7,7 @@
         public required string Password { get; set; }
 
         public required string PasswordConfirm { get; set; }
+
+        public bool Otp { get; set; }
     }
 }

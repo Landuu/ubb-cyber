@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
+using System.Threading;
 using ubb_cyber.Database;
+using ubb_cyber.Migrations;
 using ubb_cyber.Models;
 using ubb_cyber.Services.UserService;
 using ubb_cyber.Services.ValidatorUserProvider;
@@ -24,24 +26,30 @@ namespace ubb_cyber.Validators
             _userService = userService;
             _userProvider = userProvider;
 
-            RuleFor(model => new { model.Login, model.Password })
+            RuleFor(model => new { model.Login, model.Password, model.Otp, model.OtpX })
                 .Configure(c => c.PropertyName = "Login")
-                .Must((model) =>
-                {
-                    bool loginValid = model.Login != null && model.Login.Length > 0;
-                    bool passwordValid = model.Password != null && model.Password.Length > 0;
-                    return loginValid && passwordValid;
-                })
-                    .WithMessage(_invalidCredentialsError)
                 .MustAsync(async (model, cancellationToken) =>
                 {
-                    if (model.Login == null || model.Password == null)
+                    if (model.Login == null || model.Login.Length < 1)
                         return false;
 
                     var user = await _userProvider.GetUserByLogin(model.Login, cancellationToken);
                     if (user == null)
                         return false;
-                    var passwordValid = _userService.ValidatePasswordHash(model.Password, user.PasswordHash);
+
+                    bool passwordValid = false;
+                    if(user.Otp)
+                    {
+                        passwordValid = true;
+                    }
+                    else if(model.Password != null)
+                    {
+                        passwordValid = _userService.ValidatePasswordHash(model.Password, user.PasswordHash);
+                    }
+                    else
+                    {
+                        return false;
+                    }
 
                     if (user.Locked && user.LockedUntilDate != null && user.InvalidPasswordCounter > 0)
                     {
@@ -91,6 +99,34 @@ namespace ubb_cyber.Validators
                     return passwordValid;
                 })
                     .WithMessage(_invalidCredentialsError)
+                .MustAsync(async (model, cancellationToken) =>
+                {
+                    if (model.Login == null)
+                        return false;
+
+                    var user = await _userProvider.GetUserByLogin(model.Login, cancellationToken);
+                    if (user == null)
+                        return false;
+
+                    if (!user.Otp)
+                        return true;
+
+                    if (model.OtpX == null)
+                        return false;
+
+                    var otpA = model.Login.Length;
+                    var otpCorrectValue = Convert.ToInt32(otpA * Math.Log(Convert.ToDouble(model.OtpX)));
+                    var modelOtpInt = Convert.ToInt32(model.Otp);
+                    bool otpIsValid = otpCorrectValue == modelOtpInt;
+
+                    if(otpIsValid)
+                    {
+                        user.Otp = false;
+                        await _context.SaveChangesAsync(cancellationToken);
+                    }
+                    return otpIsValid;
+                })
+                    .WithMessage("Nieprawidłowe hasło jednorazowe")
                 .MustAsync(async (model, cancellationToken) =>
                 {
                     var user = await _userProvider.GetUserByLogin(model.Login, cancellationToken);

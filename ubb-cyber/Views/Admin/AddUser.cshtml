@@ -22,9 +22,12 @@
                     <div class="mb-3">
                         <label for="inputPassword" class="form-label">Hasło:</label>
                         <input asp-for="Password" type="password" class="form-control" id="inputPassword">
-                        <input id="otp" type="checkbox"/>
-                        <label for="otp">Hasło jednorazowe</label>
                         <span class="text-danger" asp-validation-for="Password"></span>
+                    </div>
+
+                    <div class="mb-2 form-check">
+                        @Html.CheckBoxFor(m => m.Otp, new { @class = "form-check-input" })
+                        @Html.LabelFor(x => x.Otp, "Hasło jednorazowe", new { @class = "form-check-label" })
                     </div>
 
                     <div class="mb-3">
@@ -42,29 +45,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    const inputPassword = document.getElementById("inputPassword");
-    const inputPasswordConfirm = document.getElementById("inputPasswordConfirm");
-    const otpCheckbox = document.getElementById("otp");
-
-    otp.addEventListener("change", (e) => {
-        const value = e.currentTarget.checked;
-        if (value) {
-            const pass = Math.random().toString(36).slice(-8);
-            inputPassword.value = pass;
-            inputPasswordConfirm.value = pass;
-            inputPassword.type = "text";
-            inputPasswordConfirm.type = "text";
-            inputPassword.readOnly = true;
-            inputPasswordConfirm.readOnly = true;
-        } else {
-            inputPassword.value = "";
-            inputPasswordConfirm.value = "";
-            inputPassword.type = "password";
-            inputPasswordConfirm.type = "password";
-            inputPassword.readOnly = false;
-            inputPasswordConfirm.readOnly = false;
-        }
-    })
-</script>

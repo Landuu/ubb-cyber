@@ -20,6 +20,20 @@
                     <input asp-for="Password" type="password" class="form-control" id="inputPassword">
                     <span class="text-danger" asp-validation-for="Login"></span>
                 </div>
+                <div class="mb-3">
+                    <label for="inputOtp" class="form-label">Hasło jednorazowe</label>
+                    <input asp-for="Otp" type="text" class="form-control" id="inputOtp">
+                </div>
+                <div class="mb-2">
+                    <label for="otpX">Hasło jednorazowe (X):</label>
+                    <input asp-for="OtpX" readonly="readonly" id="otpX" />
+                    <br />
+                    <label for="otpA">Hasło jednorazowe (A):</label>
+                    <input readonly="readonly" id="otpA" />
+                    <br />
+                    <label for="otpDesc">Hasło jednorazowe (funcja):</label>
+                    <input id="otpDesc" value="a*ln(x)" disabled="disabled" />
+                </div>
                 <div class="d-flex justify-content-center">
                     <button type="submit" class="btn btn-primary px-3">Zaloguj</button>
                 </div>
@@ -27,3 +41,27 @@
         </div>
     </div>
 </div>
+
+<script>
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    const inputLogin = document.getElementById("inputLogin");
+    const otpA = document.getElementById("otpA");
+    const otpX = document.getElementById("otpX");
+
+    inputLogin.addEventListener("change", (e) => {
+        otpA.value = e.target.value.length;
+    });
+
+    window.addEventListener("load", () => {
+        otpX.value = getRandomInt(10, 100);
+        const userLogin = inputLogin.value;
+        if (userLogin && userLogin.length > 0)
+            otpA.value = userLogin.length;
+        
+    });
+</script>

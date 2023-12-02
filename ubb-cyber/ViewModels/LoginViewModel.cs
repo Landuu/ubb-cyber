@@ -8,5 +8,9 @@ namespace ubb_cyber.ViewModels
 
         [DisplayName("Hasło")]
         public string? Password { get; set; }
+
+        public int? OtpX { get; set; }
+
+        public string? Otp { get; set; }
     }
 }
