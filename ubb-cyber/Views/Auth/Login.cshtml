@@ -3,7 +3,7 @@
     ViewData["Title"] = "Logowanie";
 }
 
-<div class="d-flex justify-content-center my-5">
+<div class="d-flex justify-content-center mt-2 mb-5">
     <div class="w-50 p-4">
         <div class="fs-4 text-center">
             🔐 Logowanie
@@ -18,23 +18,59 @@
                 <div class="mb-3">
                     <label for="inputPassword" class="form-label">Hasło</label>
                     <input asp-for="Password" type="password" class="form-control" id="inputPassword">
+                    
+                </div>
+                <div class="bg-light p-2 mb-3">
+                    <div>
+                        <label for="inputOtp" class="form-label">Wpisz hasło jednorazowe</label>
+                        <input asp-for="Otp" type="text" class="form-control form-control-sm" id="inputOtp">
+                    </div>
+
+                    <div>
+                        <label for="otpDesc" class="form-label">Funkcja:</label>
+                        <input id="otpDesc" value="a*ln(x)" class="form-control form-control-sm" disabled="disabled" />
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <div>
+                            <label for="otpX" class="form-label">x:</label>
+                            <input asp-for="OtpX" readonly="readonly" id="otpX" class="form-control form-control-sm" />
+                        </div>
+                        <div>
+                            <label for="otpA" class="form-label">a:</label>
+                            <input readonly="readonly" id="otpA" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-warning p-2 mb-3">
+                    <div class="fw-bold">
+                        CAPTCHA: Rozwiąż zadanie matematyczne
+                    </div>
+                    <div class="bg-white text-center fs-3 fw-medium p-2">
+                        @(Model.CaptchaA) @(Model.CaptchaSubtract ? "-" : "+") @(Model.CaptchaB)
+                    </div>
+
+                    <div class="mt-2">
+                        <input asp-for="CaptchaAnswer" id="captcha" class="form-control form-control-sm" />
+                    </div>
+                </div>
+
+                <div class="my-2">
                     <span class="text-danger" asp-validation-for="Login"></span>
                 </div>
-                <div class="mb-3">
-                    <label for="inputOtp" class="form-label">Hasło jednorazowe</label>
-                    <input asp-for="Otp" type="text" class="form-control" id="inputOtp">
-                </div>
-                <div class="mb-2">
-                    <label for="otpX">Hasło jednorazowe (X):</label>
-                    <input asp-for="OtpX" readonly="readonly" id="otpX" />
-                    <br />
-                    <label for="otpA">Hasło jednorazowe (A):</label>
-                    <input readonly="readonly" id="otpA" />
-                    <br />
-                    <label for="otpDesc">Hasło jednorazowe (funcja):</label>
-                    <input id="otpDesc" value="a*ln(x)" disabled="disabled" />
-                </div>
-                <div class="d-flex justify-content-center">
+
+                @Html.HiddenFor(x => x.CaptchaSubtract)
+                @Html.HiddenFor(x => x.CaptchaA)
+                @Html.HiddenFor(x => x.CaptchaB)
+                <input asp-for="CaptchaA" />
+                <input asp-for="CaptchaB" />
+                @* 
+                    <input type="checkbox" value="@Model.CaptchaSubtract" name="@nameof(Model.CaptchaSubtract)" hidden />
+                    <input type="number" value="@Model.CaptchaA" name="@nameof(Model.CaptchaA)" hidden />
+                    <input type="number" value="@Model.CaptchaB" name="@nameof(Model.CaptchaB)" hidden />
+                *@
+                <div class="d-grid">
                     <button type="submit" class="btn btn-primary px-3">Zaloguj</button>
                 </div>
             </form>
@@ -43,12 +79,6 @@
 </div>
 
 <script>
-    function getRandomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
     const inputLogin = document.getElementById("inputLogin");
     const otpA = document.getElementById("otpA");
     const otpX = document.getElementById("otpX");
@@ -59,10 +89,13 @@
     });
 
     window.addEventListener("load", () => {
-        otpX.value = getRandomInt(10, 100);
         const userLogin = inputLogin.value;
         if (userLogin && userLogin.length > 0)
             otpA.value = userLogin.length;
-        
+
+        otpA.value = inputLogin.value.length;
+        console.log('otp', Number(otpA.value) * Math.log(Number(otpX.value)));
+
+        console.log(@(Model.CaptchaA), @(Model.CaptchaB), @(Model.CaptchaSubtract ? 1 : 0));
     });
 </script>

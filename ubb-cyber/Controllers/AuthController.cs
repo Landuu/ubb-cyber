@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using PasswordGenerator;
 using System.Runtime.InteropServices;
@@ -47,7 +48,14 @@ namespace ubb_cyber.Controllers
             if (_userService.IsLoggedIn())
                 return RedirectToIndex();
 
-            return View();
+            var random = new Random();
+            var viewModel = new LoginViewModel()
+            {
+                OtpX = random.Next(10, 100)
+            };
+            RollCaptcha(ref viewModel);
+
+            return View(viewModel);
         }
 
         [AllowAnonymous]
@@ -58,6 +66,10 @@ namespace ubb_cyber.Controllers
 
             if (!result.IsValid)
             {
+                ModelState.SetModelValue("CaptchaA", new ValueProviderResult("500"));
+                ModelState.SetModelValue("CaptchaB", new ValueProviderResult("600"));
+                RollCaptcha(ref viewModel);
+                await TryUpdateModelAsync(viewModel);
                 result.AddToModelState(ModelState);
                 return View(viewModel);
             }
@@ -256,6 +268,15 @@ namespace ubb_cyber.Controllers
         private IActionResult RedirectToIndex()
         {
             return RedirectToAction("Index", "Home");
+        }
+
+        private static void RollCaptcha(ref LoginViewModel viewModel)
+        {
+            var random = new Random();
+            bool captchaSubtract = random.NextDouble() < 0.5d;
+            viewModel.CaptchaSubtract = captchaSubtract;
+            viewModel.CaptchaA = captchaSubtract ? random.Next(30, 50) : random.Next(1, 50);
+            viewModel.CaptchaB = captchaSubtract ? random.Next(10, 30) : random.Next(1, 30);
         }
     }
 }

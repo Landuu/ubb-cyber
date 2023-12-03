@@ -26,8 +26,19 @@ namespace ubb_cyber.Validators
             _userService = userService;
             _userProvider = userProvider;
 
-            RuleFor(model => new { model.Login, model.Password, model.Otp, model.OtpX })
+            RuleFor(model => new { model.Login, model.Password, model.Otp, model.OtpX, model.CaptchaSubtract, model.CaptchaA,  model.CaptchaB, model.CaptchaAnswer })
                 .Configure(c => c.PropertyName = "Login")
+                .Must(model =>
+                {
+                    if (model.CaptchaA == 0 || model.CaptchaB == 0 || model.CaptchaAnswer == null)
+                        return false;
+
+                    var result = model.CaptchaSubtract 
+                        ? model.CaptchaA - model.CaptchaB 
+                        : model.CaptchaA + model.CaptchaB;
+                    return result == model.CaptchaAnswer;
+                })
+                    .WithMessage("Nieprawidłowa CAPTCHA")
                 .MustAsync(async (model, cancellationToken) =>
                 {
                     if (model.Login == null || model.Login.Length < 1)
@@ -115,7 +126,8 @@ namespace ubb_cyber.Validators
                         return false;
 
                     var otpA = model.Login.Length;
-                    var otpCorrectValue = Convert.ToInt32(otpA * Math.Log(Convert.ToDouble(model.OtpX)));
+                    var otpVal = otpA * Math.Log(Convert.ToDouble(model.OtpX));
+                    var otpCorrectValue = (int) otpVal;
                     var modelOtpInt = Convert.ToInt32(model.Otp);
                     bool otpIsValid = otpCorrectValue == modelOtpInt;
 
