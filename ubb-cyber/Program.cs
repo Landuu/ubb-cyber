@@ -1,3 +1,4 @@
+using AspNetCore.ReCaptcha;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.CookiePolicy;
@@ -24,6 +25,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddReCaptcha(builder.Configuration.GetSection("ReCaptcha"));
+
 
 builder.Services.AddScoped<IPrincipalProvider, PrincipalProvider>();
 builder.Services.AddScoped<IUserService, UserService>();

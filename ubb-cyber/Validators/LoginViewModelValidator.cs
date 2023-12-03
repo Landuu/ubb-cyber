@@ -26,16 +26,14 @@ namespace ubb_cyber.Validators
             _userService = userService;
             _userProvider = userProvider;
 
-            RuleFor(model => new { model.Login, model.Password, model.Otp, model.OtpX, model.CaptchaSubtract, model.CaptchaA,  model.CaptchaB, model.CaptchaAnswer })
+            RuleFor(model => new { model.Login, model.Password, model.Otp, model.OtpX, model.CaptchaA,  model.CaptchaB, model.CaptchaAnswer })
                 .Configure(c => c.PropertyName = "Login")
                 .Must(model =>
                 {
                     if (model.CaptchaA == 0 || model.CaptchaB == 0 || model.CaptchaAnswer == null)
                         return false;
 
-                    var result = model.CaptchaSubtract 
-                        ? model.CaptchaA - model.CaptchaB 
-                        : model.CaptchaA + model.CaptchaB;
+                    var result = model.CaptchaA + model.CaptchaB;
                     return result == model.CaptchaAnswer;
                 })
                     .WithMessage("Nieprawidłowa CAPTCHA")
